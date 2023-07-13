@@ -6,6 +6,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -18,36 +19,21 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> retrieveAllUsers(){
-        return userService.findAll();
+        return userService.retrieveAllUsers();
     }
 
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable int id){
-        User user = userService.findById(id);
-        if (user == null){
-            throw new UserNotFoundException("id:"+id);
-        }
-
-        return user;
+    public User retrieveUser(@PathVariable Integer id){
+        return userService.retrieveUser(id);
     }
 
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user){
-        User savedUser = userService.save(user);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedUser.getId())
-                .toUri();
-        return ResponseEntity.created(location).build();
+        return userService.createUser(user);
     }
 
     @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable int id){
-        User user = userService.findById(id);
-        if (user == null){
-            throw new UserNotFoundException("id:"+id);
-        }
-
-        userService.deleteById(id);
+    public void deleteUser(@PathVariable Integer id){
+        userService.deleteUser(id);
     }
 }

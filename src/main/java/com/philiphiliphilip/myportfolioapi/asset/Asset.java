@@ -1,24 +1,45 @@
-package com.philiphiliphilip.myportfolioapi.portfolio;
+package com.philiphiliphilip.myportfolioapi.asset;
+
+import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Entity
 public class Asset {
-
+    @Id
+    @GeneratedValue
     private Integer id;
     private String tickerSymbol;
     private Integer quantity;
     private BigDecimal purchasePrice;
     private LocalDateTime purchaseDate;
     private Integer taxRate;
+    @ManyToOne
+    @JoinColumn(name = "portfolio_id")
+    private Portfolio portfolio;
 
-    public Asset(Integer id, String tickerSymbol, Integer quantity, BigDecimal purchasePrice, LocalDateTime purchaseDate, Integer taxRate) {
+    public Asset(Integer id, String tickerSymbol, Integer quantity, BigDecimal purchasePrice, LocalDateTime purchaseDate, Integer taxRate,
+                 Portfolio portfolio) {
         this.id = id;
         this.tickerSymbol = tickerSymbol;
         this.quantity = quantity;
         this.purchasePrice = purchasePrice;
         this.purchaseDate = purchaseDate;
         this.taxRate = taxRate;
+        this.portfolio = portfolio;
+    }
+
+    public Asset() {
+    }
+
+    public Portfolio getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(Portfolio portfolio) {
+        this.portfolio = portfolio;
     }
 
     public Integer getId() {
@@ -69,6 +90,7 @@ public class Asset {
         this.taxRate = taxRate;
     }
 
+
     @Override
     public String toString() {
         return "Asset{" +
@@ -78,6 +100,7 @@ public class Asset {
                 ", purchasePrice=" + purchasePrice +
                 ", purchaseDate=" + purchaseDate +
                 ", taxRate=" + taxRate +
+                ", portfolio=" + portfolio +
                 '}';
     }
 }

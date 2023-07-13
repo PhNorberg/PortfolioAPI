@@ -2,26 +2,37 @@ package com.philiphiliphilip.myportfolioapi.User;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.philiphiliphilip.myportfolioapi.portfolio.Asset;
+import com.philiphiliphilip.myportfolioapi.asset.Asset;
 import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.util.List;
 
+// Added to prevent infinite recursion when accessing /users. Without it Jackson will serialize User which has a
+// Portfolio as member variable, which it will serialize. This Portfolio points back to the User, which it then will
+// serialize again. And that User has a Portfolio in it... etc.
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "username"
 )
-public class User {
+// user is key-name in h2, therefore name it something else
+@Entity(name = "user_details")
+    public class User {
 
+    @Id
+    @GeneratedValue
     private Integer id;
     private String username;
     private String email;
 
-    //@OneToMany(mappedBy = "user")
+    // CascadeType.REMOVE to cascade delete a User's portfolio when a User is deleted
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Portfolio> portfolio;
 
-    public User(Integer id, String username,  String email, List<Portfolio> portfolio) {
+    public User() {
+    }
+
+    public User(Integer id, String username, String email, List<Portfolio> portfolio) {
         this.id = id;
         this.username = username;
         this.email = email;
