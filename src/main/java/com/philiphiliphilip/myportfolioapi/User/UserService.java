@@ -17,11 +17,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> retrieveAllUsers(){
+    public List<User> getAllUsers(){
         return userRepository.findAll();
     }
 
-    public User retrieveUser(Integer id){
+    public User getUserById(Integer id){
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()){
             throw new UserNotFoundException("id:"+id);

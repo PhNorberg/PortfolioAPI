@@ -19,12 +19,12 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> retrieveAllUsers(){
-        return userService.retrieveAllUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/users/{id}")
     public User retrieveUser(@PathVariable Integer id){
-        return userService.retrieveUser(id);
+        return userService.getUserById(id);
     }
 
     @PostMapping("/users")
