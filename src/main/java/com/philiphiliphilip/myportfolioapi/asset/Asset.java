@@ -1,34 +1,43 @@
 package com.philiphiliphilip.myportfolioapi.asset;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
+import com.philiphiliphilip.myportfolioapi.transaction.Transaction;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "tickerSymbol"
+)
 @Entity
 public class Asset {
     @Id
     @GeneratedValue
     private Integer id;
     private String tickerSymbol;
-    private Integer quantity;
+    private BigDecimal quantity;
     private BigDecimal purchasePrice;
-    private LocalDateTime purchaseDate;
     private Integer taxRate;
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
+    @OneToMany(mappedBy = "asset", cascade = CascadeType.REMOVE)
+    private List<Transaction> transactions;
 
-    public Asset(Integer id, String tickerSymbol, Integer quantity, BigDecimal purchasePrice, LocalDateTime purchaseDate, Integer taxRate,
-                 Portfolio portfolio) {
+    public Asset(Integer id, String tickerSymbol, BigDecimal quantity, BigDecimal purchasePrice, Integer taxRate,
+                 Portfolio portfolio, List<Transaction> transactions) {
         this.id = id;
         this.tickerSymbol = tickerSymbol;
         this.quantity = quantity;
         this.purchasePrice = purchasePrice;
-        this.purchaseDate = purchaseDate;
         this.taxRate = taxRate;
         this.portfolio = portfolio;
+        this.transactions = transactions;
     }
 
     public Asset() {
@@ -58,11 +67,11 @@ public class Asset {
         this.tickerSymbol = tickerSymbol;
     }
 
-    public Integer getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
@@ -74,14 +83,13 @@ public class Asset {
         this.purchasePrice = purchasePrice;
     }
 
-    public LocalDateTime getPurchaseDate() {
-        return purchaseDate;
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 
-    public void setPurchaseDate(LocalDateTime purchaseDate) {
-        this.purchaseDate = purchaseDate;
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
-
     public Integer getTaxRate() {
         return taxRate;
     }
@@ -98,9 +106,9 @@ public class Asset {
                 ", tickerSymbol='" + tickerSymbol + '\'' +
                 ", quantity=" + quantity +
                 ", purchasePrice=" + purchasePrice +
-                ", purchaseDate=" + purchaseDate +
                 ", taxRate=" + taxRate +
                 ", portfolio=" + portfolio +
+                ", transactions=" + transactions +
                 '}';
     }
 }
