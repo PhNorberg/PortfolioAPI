@@ -11,15 +11,17 @@ public class AssetDTO {
     private String tickerSymbol;
     private BigDecimal quantity;
     private BigDecimal purchasePrice;
+    private BigDecimal profitPercentage;
     private Integer taxRate;
     private String portfolio;
     private List<Transaction> transactions;
 
-    public AssetDTO(Integer id, String tickerSymbol, BigDecimal quantity, BigDecimal purchasePrice, Integer taxRate, String portfolio, List<Transaction> transactions) {
+    public AssetDTO(Integer id, String tickerSymbol, BigDecimal quantity, BigDecimal purchasePrice, BigDecimal profitPercentage, Integer taxRate, String portfolio, List<Transaction> transactions) {
         this.id = id;
         this.tickerSymbol = tickerSymbol;
         this.quantity = quantity;
         this.purchasePrice = purchasePrice;
+        this.profitPercentage = profitPercentage;
         this.taxRate = taxRate;
         this.portfolio = portfolio;
         this.transactions = transactions;
@@ -58,6 +60,14 @@ public class AssetDTO {
 
     public void setPurchasePrice(BigDecimal purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getProfitPercentage() {
+        return profitPercentage;
+    }
+
+    public void setProfitPercentage(BigDecimal profitPercentage) {
+        this.profitPercentage = profitPercentage;
     }
 
     public Integer getTaxRate() {

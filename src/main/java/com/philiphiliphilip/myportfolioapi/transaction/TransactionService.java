@@ -9,10 +9,13 @@ import com.philiphiliphilip.myportfolioapi.asset.AssetRepository;
 import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
 import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioNotFoundException;
 import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
+import java.net.URI;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,11 +83,61 @@ public class TransactionService {
         return asset.getTransactions().stream().map(this::transactionConverter).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Transaction> createAssetTransaction(Integer userId, Integer portfolioId, Integer assetId, Transaction transaction) {
-        return null;
+    @Transactional
+    public ResponseEntity<Transaction> createAssetTransaction(Integer userId, Integer portfolioId, Integer assetId, Transaction transaction) throws AccessDeniedException {
+        // Need to update the asset object to have quantity and purchasePrice etc up to date
+        // Make it @Transactional to make sure that the series of db operations are treated as a single atomic unit.
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
+        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
+        // Check if the user owns the portfolio
+        if (!user.getPortfolio().contains(portfolio)) {
+            throw new AccessDeniedException("User does not own this portfolio");
+        }
+        Asset asset = assetRepository.findById(assetId).orElseThrow(() -> new AssetNotFoundException("id:" + assetId));
+        // Check if asset belongs to portfolio
+        if (!portfolio.getAssets().contains(asset)){
+            throw new AccessDeniedException("Portfolio does not own this asset");
+        }
+
+        transaction.setAsset(asset);
+        transactionRepository.save(transaction);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(user.getId())
+                .toUri();
+
+        asset.getTransactions().add(transaction);
+        asset.updateQuantity();
+        asset.updatePurchasePrice();
+        asset.updateProfitFactor();
+        assetRepository.save(asset);
+
+        return ResponseEntity.created(location).build();
     }
+    @Transactional
+    public void deleteAssetTransaction(Integer userId, Integer portfolioId, Integer assetId, Integer transactionId) throws AccessDeniedException {
+        // Need to update the asset object to have quantity and purchasePrice etc up to date
+        // Make it @Transactional to make sure that the series of db operations are treated as a single atomic unit.
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
+        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
+        // Check if the user owns the portfolio
+        if (!user.getPortfolio().contains(portfolio)) {
+            throw new AccessDeniedException("User does not own this portfolio");
+        }
+        Asset asset = assetRepository.findById(assetId).orElseThrow(() -> new AssetNotFoundException("id:" + assetId));
+        // Check if asset belongs to portfolio
+        if (!portfolio.getAssets().contains(asset)){
+            throw new AccessDeniedException("Portfolio does not own this asset");
+        }
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new TransactionNotFoundException("id:" + transactionId));
 
-    public void deleteAssetTransaction(Integer userId, Integer portfolioId, Integer assetId, Integer transactionId) {
-
+        asset.getTransactions().remove(transaction);
+        transactionRepository.delete(transaction);
+        asset.updateQuantity();
+        asset.updatePurchasePrice();
+        asset.updateProfitFactor();
+        assetRepository.save(asset);
     }
 }

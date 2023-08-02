@@ -37,11 +37,13 @@ public class AssetService {
         assetDTO.setId(asset.getId());
         assetDTO.setTickerSymbol(asset.getTickerSymbol());
         assetDTO.setQuantity(asset.getQuantity());
-        assetDTO.setPurchasePrice(asset.getPurchasePrice()); // purchasePrice depends on the transactions, fix later
+        assetDTO.setPurchasePrice(asset.getPurchasePrice());
+        assetDTO.setProfitPercentage(asset.getProfitFactor());
         assetDTO.setTaxRate(asset.getTaxRate());
         assetDTO.setPortfolio(asset.getPortfolio().getName());
         assetDTO.setTransactions(asset.getTransactions());
 
         return assetDTO;
     }
+
 }

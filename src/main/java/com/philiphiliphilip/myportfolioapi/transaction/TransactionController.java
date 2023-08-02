@@ -26,26 +26,26 @@ public class TransactionController {
         return transactionService.getPortfolioTransactions(userId, portfolioId);
     }
 
-    @GetMapping("/users/{userId}/portfolios/{portfolioId}/transactions/{assetId}")
+    @GetMapping("/users/{userId}/portfolios/{portfolioId}/{assetId}/transactions")
     public List<TransactionDTO> getAssetTransactions(@PathVariable Integer userId,
                                                      @PathVariable Integer portfolioId,
                                                      @PathVariable Integer assetId) throws AccessDeniedException {
         return transactionService.getAssetTransactions(userId, portfolioId, assetId);
     }
 
-    @PostMapping("/users/{userId}/portfolios/{portfolioId}/transactions/{assetId}")
+    @PostMapping("/users/{userId}/portfolios/{portfolioId}/{assetId}/transactions")
     public ResponseEntity<Transaction> createAssetTransaction(@PathVariable Integer userId,
                                                                @PathVariable Integer portfolioId,
                                                                @PathVariable Integer assetId,
-                                                              @RequestBody Transaction transaction){
+                                                              @RequestBody Transaction transaction) throws AccessDeniedException {
         return transactionService.createAssetTransaction(userId, portfolioId, assetId, transaction);
     }
 
-    @DeleteMapping("/users/{userId}/portfolios/{portfolioId}/transactions/{assetId}/{transactionId}")
+    @DeleteMapping("/users/{userId}/portfolios/{portfolioId}/{assetId}/transactions/{transactionId}")
     public void deleteAssetTransaction(@PathVariable Integer userId,
                                                   @PathVariable Integer portfolioId,
                                                   @PathVariable Integer assetId,
-                                       @PathVariable Integer transactionId){
+                                       @PathVariable Integer transactionId) throws AccessDeniedException {
         transactionService.deleteAssetTransaction(userId, portfolioId, assetId, transactionId);
     }
 }
