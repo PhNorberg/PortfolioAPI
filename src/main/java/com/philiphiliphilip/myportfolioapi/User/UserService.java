@@ -1,5 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
+import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;

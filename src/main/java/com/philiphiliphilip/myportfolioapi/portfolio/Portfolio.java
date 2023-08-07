@@ -6,6 +6,8 @@ import com.philiphiliphilip.myportfolioapi.User.User;
 import com.philiphiliphilip.myportfolioapi.asset.Asset;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 // Added to prevent infinite recursion when accessing /users. Without it Jackson will serialize User which has a
@@ -22,6 +24,11 @@ public class Portfolio {
     @GeneratedValue
     private Integer id;
     private String name;
+    private BigDecimal totalInvested;
+    private BigDecimal valueNow;
+    private BigDecimal profitFactor;
+    private BigDecimal grossProfitDollars;
+    private BigDecimal netProfitDollars;
     // CascadeType.REMOVE to delete all assets in the portfolio when a portfolio is deleted
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.REMOVE)
     private List<Asset> assets;
@@ -34,11 +41,44 @@ public class Portfolio {
         this.name = name;
         this.assets = assets;
         this.user = user;
+        this.totalInvested = BigDecimal.ZERO;
+        this.valueNow = BigDecimal.ZERO;
+        this.profitFactor = BigDecimal.ZERO;
+        this.grossProfitDollars = BigDecimal.ZERO;
+        this.netProfitDollars = BigDecimal.ZERO;
+        updateStatistics();
+
     }
 
     public Portfolio() {
     }
 
+    public void updateStatistics() {
+        updateTotalInvested();
+        updateValueNow();
+        updateProfitFactor();
+        updateGrossProfitDollars();
+        updateNetProfitDollars();
+    }
+
+    private void updateTotalInvested(){
+        this.totalInvested = this.assets.stream().map(Asset::getTotalInvested).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
+    }
+
+    private void updateValueNow(){
+        this.valueNow = this.assets.stream().map(Asset::getValueNow).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
+    }
+
+    private void updateProfitFactor(){
+        this.profitFactor = (this.valueNow.divide(this.totalInvested, 10, RoundingMode.DOWN)).setScale(2, RoundingMode.DOWN);
+    }
+
+    private void updateGrossProfitDollars(){
+        this.grossProfitDollars = this.assets.stream().map(Asset::getGrossProfitDollars).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
+    }
+    private void updateNetProfitDollars(){
+        this.netProfitDollars = this.assets.stream().map(Asset::getNetProfitDollars).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
+    }
     public Integer getId() {
         return id;
     }
@@ -53,6 +93,46 @@ public class Portfolio {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public BigDecimal getTotalInvested() {
+        return totalInvested;
+    }
+
+    public void setTotalInvested(BigDecimal totalInvested) {
+        this.totalInvested = totalInvested;
+    }
+
+    public BigDecimal getValueNow() {
+        return valueNow;
+    }
+
+    public void setValueNow(BigDecimal valueNow) {
+        this.valueNow = valueNow;
+    }
+
+    public BigDecimal getProfitFactor() {
+        return profitFactor;
+    }
+
+    public void setProfitFactor(BigDecimal profitFactor) {
+        this.profitFactor = profitFactor;
+    }
+
+    public BigDecimal getGrossProfitDollars() {
+        return grossProfitDollars;
+    }
+
+    public void setGrossProfitDollars(BigDecimal grossProfitDollars) {
+        this.grossProfitDollars = grossProfitDollars;
+    }
+
+    public BigDecimal getNetProfitDollars() {
+        return netProfitDollars;
+    }
+
+    public void setNetProfitDollars(BigDecimal netProfitDollars) {
+        this.netProfitDollars = netProfitDollars;
     }
 
     public List<Asset> getAssets() {

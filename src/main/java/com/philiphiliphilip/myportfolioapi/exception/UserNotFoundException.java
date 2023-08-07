@@ -1,4 +1,4 @@
-package com.philiphiliphilip.myportfolioapi.User;
+package com.philiphiliphilip.myportfolioapi.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

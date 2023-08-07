@@ -1,13 +1,14 @@
 package com.philiphiliphilip.myportfolioapi.transaction;
 
 import com.philiphiliphilip.myportfolioapi.User.User;
-import com.philiphiliphilip.myportfolioapi.User.UserNotFoundException;
+import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
 import com.philiphiliphilip.myportfolioapi.User.UserRepository;
 import com.philiphiliphilip.myportfolioapi.asset.Asset;
-import com.philiphiliphilip.myportfolioapi.asset.AssetNotFoundException;
+import com.philiphiliphilip.myportfolioapi.exception.AssetNotFoundException;
 import com.philiphiliphilip.myportfolioapi.asset.AssetRepository;
+import com.philiphiliphilip.myportfolioapi.exception.TransactionNotFoundException;
 import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
-import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioNotFoundException;
+import com.philiphiliphilip.myportfolioapi.exception.PortfolioNotFoundException;
 import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
@@ -108,11 +109,8 @@ public class TransactionService {
                 .toUri();
 
         asset.getTransactions().add(transaction);
-        asset.updateQuantity();
-        asset.updatePurchasePrice();
-        asset.updateProfitFactor();
+        asset.updateStatistics();
         assetRepository.save(asset);
-
         return ResponseEntity.created(location).build();
     }
     @Transactional
@@ -135,9 +133,7 @@ public class TransactionService {
 
         asset.getTransactions().remove(transaction);
         transactionRepository.delete(transaction);
-        asset.updateQuantity();
-        asset.updatePurchasePrice();
-        asset.updateProfitFactor();
+        asset.updateStatistics();
         assetRepository.save(asset);
     }
 }

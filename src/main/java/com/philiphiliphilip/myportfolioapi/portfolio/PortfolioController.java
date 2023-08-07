@@ -18,12 +18,12 @@ public class PortfolioController {
 
 
     @GetMapping("/users/{id}/portfolios")
-    public List<Portfolio> getAllPortfolios(@PathVariable Integer id) {
+    public List<PortfolioDTO> getAllPortfolios(@PathVariable Integer id) {
         return portfolioService.getAllPortfolios(id);
     }
     
     @GetMapping("/users/{userId}/portfolios/{portfolioId}")
-    public Portfolio getPortfolioById(@PathVariable Integer userId, @PathVariable Integer portfolioId){
+    public PortfolioDTO getPortfolioById(@PathVariable Integer userId, @PathVariable Integer portfolioId){
         return portfolioService.getPortfolioById(userId, portfolioId);
 
     }

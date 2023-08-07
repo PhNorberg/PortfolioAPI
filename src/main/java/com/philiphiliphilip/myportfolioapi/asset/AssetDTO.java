@@ -11,17 +11,29 @@ public class AssetDTO {
     private String tickerSymbol;
     private BigDecimal quantity;
     private BigDecimal purchasePrice;
-    private BigDecimal profitPercentage;
-    private Integer taxRate;
+    private BigDecimal currentPrice;
+    private BigDecimal totalInvested;
+    private BigDecimal valueNow;
+    private BigDecimal profitFactor;
+    private BigDecimal grossProfitDollars;
+    private BigDecimal netProfitDollars;
+    private BigDecimal taxRate;
     private String portfolio;
     private List<Transaction> transactions;
 
-    public AssetDTO(Integer id, String tickerSymbol, BigDecimal quantity, BigDecimal purchasePrice, BigDecimal profitPercentage, Integer taxRate, String portfolio, List<Transaction> transactions) {
+    public AssetDTO(Integer id, String tickerSymbol, BigDecimal quantity, BigDecimal purchasePrice, BigDecimal currentPrice,
+                    BigDecimal totalInvested, BigDecimal valueNow, BigDecimal profitFactor, BigDecimal grossProfitDollars, BigDecimal netProfitDollars,
+                    BigDecimal taxRate, String portfolio, List<Transaction> transactions) {
         this.id = id;
         this.tickerSymbol = tickerSymbol;
         this.quantity = quantity;
         this.purchasePrice = purchasePrice;
-        this.profitPercentage = profitPercentage;
+        this.currentPrice = currentPrice;
+        this.profitFactor = profitFactor;
+        this.totalInvested = totalInvested;
+        this.valueNow = valueNow;
+        this.grossProfitDollars = grossProfitDollars;
+        this.netProfitDollars = netProfitDollars;
         this.taxRate = taxRate;
         this.portfolio = portfolio;
         this.transactions = transactions;
@@ -62,19 +74,59 @@ public class AssetDTO {
         this.purchasePrice = purchasePrice;
     }
 
-    public BigDecimal getProfitPercentage() {
-        return profitPercentage;
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
     }
 
-    public void setProfitPercentage(BigDecimal profitPercentage) {
-        this.profitPercentage = profitPercentage;
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
     }
 
-    public Integer getTaxRate() {
+    public BigDecimal getProfitFactor() {
+        return profitFactor;
+    }
+
+    public void setProfitFactor(BigDecimal profitFactor) {
+        this.profitFactor = profitFactor;
+    }
+
+    public BigDecimal getTotalInvested() {
+        return totalInvested;
+    }
+
+    public void setTotalInvested(BigDecimal totalInvested) {
+        this.totalInvested = totalInvested;
+    }
+
+    public BigDecimal getValueNow() {
+        return valueNow;
+    }
+
+    public void setValueNow(BigDecimal valueNow) {
+        this.valueNow = valueNow;
+    }
+
+    public BigDecimal getGrossProfitDollars() {
+        return grossProfitDollars;
+    }
+
+    public void setGrossProfitDollars(BigDecimal grossProfitDollars) {
+        this.grossProfitDollars = grossProfitDollars;
+    }
+
+    public BigDecimal getNetProfitDollars() {
+        return netProfitDollars;
+    }
+
+    public void setNetProfitDollars(BigDecimal netProfitDollars) {
+        this.netProfitDollars = netProfitDollars;
+    }
+
+    public BigDecimal getTaxRate() {
         return taxRate;
     }
 
-    public void setTaxRate(Integer taxRate) {
+    public void setTaxRate(BigDecimal taxRate) {
         this.taxRate = taxRate;
     }
 
