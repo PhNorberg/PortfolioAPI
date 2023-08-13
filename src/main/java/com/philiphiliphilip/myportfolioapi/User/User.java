@@ -2,7 +2,6 @@ package com.philiphiliphilip.myportfolioapi.User;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.philiphiliphilip.myportfolioapi.asset.Asset;
 import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
 import jakarta.persistence.*;
 
@@ -23,7 +22,7 @@ import java.util.List;
     @GeneratedValue
     private Integer id;
     private String username;
-    private String email;
+    private String password;
 
     // CascadeType.REMOVE to cascade delete a User's portfolio when a User is deleted
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
@@ -32,11 +31,9 @@ import java.util.List;
     public User() {
     }
 
-    public User(Integer id, String username, String email, List<Portfolio> portfolio) {
-        this.id = id;
+    public User(String username, String password) {
         this.username = username;
-        this.email = email;
-        this.portfolio = portfolio;
+        this.password = password;
     }
 
     public Integer getId() {
@@ -55,13 +52,12 @@ import java.util.List;
         this.username = username;
     }
 
-
-    public String getEmail() {
-        return email;
+    public String getPassword() {
+        return password;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public List<Portfolio> getPortfolio() {
@@ -77,7 +73,6 @@ import java.util.List;
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
                 ", portfolio=" + portfolio +
                 '}';
     }
