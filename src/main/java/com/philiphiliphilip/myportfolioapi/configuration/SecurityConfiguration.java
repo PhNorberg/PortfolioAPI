@@ -45,6 +45,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/javainuse-openapi/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 // Commented out to ensure that server doesnt accept basic username-password credentials for requests
                 // after login
