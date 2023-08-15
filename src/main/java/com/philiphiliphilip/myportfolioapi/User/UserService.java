@@ -1,7 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
 import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
-import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioDTO;
 import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioDTOUsersLevel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -23,8 +22,7 @@ public class UserService {
 
     public List<UserDTOUsersLevel> getAllUsers(){
         return userRepository.findAll().stream().map(user -> new UserDTOUsersLevel(user.getUsername()
-                , user.getPortfolio().stream().map(portfolio -> new PortfolioDTOUsersLevel(portfolio.getName()
-                , portfolio.getValueNow(), portfolio.getProfitFactor()))
+                , user.getPortfolio().stream().map(portfolio -> new PortfolioDTOUsersLevel(portfolio.getName()))
                 .collect(Collectors.toList()))).collect(Collectors.toList());
     }
 

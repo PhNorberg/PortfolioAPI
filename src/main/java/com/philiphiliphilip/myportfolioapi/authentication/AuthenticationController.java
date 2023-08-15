@@ -36,7 +36,7 @@ public class AuthenticationController {
     public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest, BindingResult bindingResult){
 
         // Capitalize the first letter of the username
-        String username = userRegistrationRequest.getUsername();
+        String username = userRegistrationRequest.getUsername().toLowerCase();
         userRegistrationRequest.setUsername(StringUtils.capitalize(username));
 
         // Log user attempt to register
@@ -59,7 +59,7 @@ public class AuthenticationController {
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest, BindingResult bindingResult){
 
         // Capitalize the first letter of the username
-        String username = userLoginRequest.getUsername();
+        String username = userLoginRequest.getUsername().toLowerCase();
         userLoginRequest.setUsername(StringUtils.capitalize(username));
 
         // Log user attempt to login
