@@ -5,6 +5,7 @@ import com.philiphiliphilip.myportfolioapi.User.UserLoginResponse;
 import com.philiphiliphilip.myportfolioapi.User.UserRegistrationRequest;
 import com.philiphiliphilip.myportfolioapi.User.UserRegistrationResponse;
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,10 @@ public class AuthenticationController {
     @PostMapping("/auth/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest, BindingResult bindingResult){
 
+        // Capitalize the first letter of the username
+        String username = userRegistrationRequest.getUsername();
+        userRegistrationRequest.setUsername(StringUtils.capitalize(username));
+
         // Log user attempt to register
         logAttempt("register", userRegistrationRequest.getUsername());
 
@@ -52,6 +57,10 @@ public class AuthenticationController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest, BindingResult bindingResult){
+
+        // Capitalize the first letter of the username
+        String username = userLoginRequest.getUsername();
+        userLoginRequest.setUsername(StringUtils.capitalize(username));
 
         // Log user attempt to login
         logAttempt("login", userLoginRequest.getUsername());
