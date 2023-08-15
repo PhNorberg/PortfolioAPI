@@ -64,6 +64,7 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body(errors);
         }
         UserLoginResponse userLoginResponse = jwtService.login(userLoginRequest);
+        log.debug("User with username {} logged in successfully.", userLoginRequest.getUsername());
         return ResponseEntity.ok(userLoginResponse);
     }
 

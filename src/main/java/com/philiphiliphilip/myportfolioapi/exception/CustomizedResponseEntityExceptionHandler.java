@@ -43,7 +43,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
         // Return a message to the user
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message","Invalid login credentials"));
-
     }
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFound(UserNotFoundException userNotFoundException){
