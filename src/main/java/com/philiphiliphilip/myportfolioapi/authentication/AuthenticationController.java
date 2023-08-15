@@ -1,6 +1,7 @@
 package com.philiphiliphilip.myportfolioapi.authentication;
 
 import com.philiphiliphilip.myportfolioapi.User.UserLoginRequest;
+import com.philiphiliphilip.myportfolioapi.User.UserLoginResponse;
 import com.philiphiliphilip.myportfolioapi.User.UserRegistrationRequest;
 import com.philiphiliphilip.myportfolioapi.User.UserRegistrationResponse;
 import jakarta.validation.Valid;
@@ -31,28 +32,51 @@ public class AuthenticationController {
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest registrationRequest, BindingResult bindingResult){
+    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest, BindingResult bindingResult){
 
         // Log user attempt to register
-        log.debug("User tries to register with username {}", registrationRequest.getUsername());
+        logAttempt("register", userRegistrationRequest.getUsername());
 
         // Check if valid registration request
         if(bindingResult.hasErrors()){
-            Map<String, String> errors = bindingResult.getFieldErrors().stream()
-                    .collect(Collectors.toMap(FieldError::getField, error -> Objects.toString(error.getDefaultMessage(), "")));
+            Map<String, String> errors = getErrors(bindingResult);
             // Log unsuccessful register attempt.
-            log.debug("User with username {} failed to register due to validation errors: {}", registrationRequest.getUsername(), errors);
+            logUnsuccessfulAttempt("register", userRegistrationRequest.getUsername(), errors);
             return ResponseEntity.badRequest().body(errors);
         }
         // Else go to service layer
-        UserRegistrationResponse userRegistrationResponse = authService.register(registrationRequest, bindingResult);
+        UserRegistrationResponse userRegistrationResponse = authService.register(userRegistrationRequest, bindingResult);
         return ResponseEntity.ok(userRegistrationResponse);
     }
 
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest userLoginRequest){
-        return jwtService.login(userLoginRequest);
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest, BindingResult bindingResult){
+
+        // Log user attempt to login
+        logAttempt("login", userLoginRequest.getUsername());
+
+        // Check if valid login request
+        if(bindingResult.hasErrors()){
+            Map<String, String> errors = getErrors(bindingResult);
+            // Log unsuccessful login attempt.
+            logUnsuccessfulAttempt("login", userLoginRequest.getUsername(), errors);
+            return ResponseEntity.badRequest().body(errors);
+        }
+        UserLoginResponse userLoginResponse = jwtService.login(userLoginRequest);
+        return ResponseEntity.ok(userLoginResponse);
     }
 
+    private Map<String, String> getErrors(BindingResult bindingResult){
+        return bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField,
+                        error -> Objects.toString(error.getDefaultMessage(), "")));
+    }
+
+    private void logUnsuccessfulAttempt(String action, String username, Map<String, String> errors){
+        log.debug("User with username {} failed to {} due to validation errors: {}", username, action, errors);
+    }
+    private void logAttempt(String action, String username){
+        log.debug("User tries to {} with username {}.", action, username);
+    }
 }

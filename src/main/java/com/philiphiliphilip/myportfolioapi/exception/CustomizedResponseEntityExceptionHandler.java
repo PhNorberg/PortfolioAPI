@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -33,5 +34,23 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
         // Return a message to the user
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Username already taken"));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException authenticationException){
+        // Log the detailed error message for developers
+        log.error(authenticationException.getMessage(), authenticationException);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message","Invalid login credentials"));
+
+    }
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFound(UserNotFoundException userNotFoundException){
+        // Log the detailed error message for developers
+        log.error(userNotFoundException.getMessage(), userNotFoundException);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Username doesn't exist."));
     }
 }

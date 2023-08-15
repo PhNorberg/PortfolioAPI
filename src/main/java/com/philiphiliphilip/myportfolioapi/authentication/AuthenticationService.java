@@ -37,7 +37,7 @@ public class AuthenticationService {
     @Transactional
     public UserRegistrationResponse register(UserRegistrationRequest registrationRequest, BindingResult bindingResult) {
 
-        // Check if User already exists
+        // Check if User with this username already exists
         Optional<User> existingUsername = userRepository.findByUsername(registrationRequest.getUsername());
         if(existingUsername.isPresent()){
             throw new UsernameAlreadyExistsException(registrationRequest.getUsername());

@@ -1,10 +1,12 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
 
 public class UserLoginRequest {
 
+    @NotEmpty(message = "You have to enter something into username field")
     private String username;
+    @NotEmpty(message = "You have to enter something into password field")
     private String password;
 
     public String getUsername() {

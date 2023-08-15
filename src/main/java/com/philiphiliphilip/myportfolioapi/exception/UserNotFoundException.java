@@ -3,10 +3,16 @@ package com.philiphiliphilip.myportfolioapi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND)
 public class UserNotFoundException extends RuntimeException {
 
-    public UserNotFoundException(String message) {
-        super(message);
+    private String username;
+
+    public UserNotFoundException(String username) {
+        super("User with username " + username + " does not exist.");
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }
