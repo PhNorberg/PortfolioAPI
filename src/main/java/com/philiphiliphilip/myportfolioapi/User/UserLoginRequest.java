@@ -1,5 +1,7 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
+import jakarta.validation.constraints.Size;
+
 public class UserLoginRequest {
 
     private String username;
