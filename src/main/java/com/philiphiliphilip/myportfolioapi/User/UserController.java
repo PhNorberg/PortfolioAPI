@@ -45,11 +45,6 @@ public class UserController {
         return ResponseEntity.ok(userDTOUsernameLevel);
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user){
-        return userService.createUser(user);
-    }
-
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable Integer id){
         userService.deleteUser(id);

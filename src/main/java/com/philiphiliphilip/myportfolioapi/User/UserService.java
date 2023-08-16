@@ -42,16 +42,6 @@ public class UserService {
                 PortfolioDTOUsernameLevel(portfolio.getName(), portfolio.getValueNow())).collect(Collectors.toList()));
     }
 
-    public ResponseEntity<User> createUser(User user){
-        User savedUser = userRepository.save(user);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedUser.getId())
-                .toUri();
-        return ResponseEntity.created(location).build();
-    }
-
     public void deleteUser(Integer id){
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()){
