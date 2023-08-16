@@ -35,18 +35,18 @@ public class AuthenticationController {
     @PostMapping("/auth/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest, BindingResult bindingResult){
 
-        // Capitalize the first letter of the username
+        // Lower-case the username and then capitalize the first letter
         String username = userRegistrationRequest.getUsername().toLowerCase();
         userRegistrationRequest.setUsername(StringUtils.capitalize(username));
 
         // Log user attempt to register
-        logAttempt("register", userRegistrationRequest.getUsername());
+        logUserAction("register", userRegistrationRequest.getUsername());
 
         // Check if valid registration request
         if(bindingResult.hasErrors()){
             Map<String, String> errors = getErrors(bindingResult);
             // Log unsuccessful register attempt.
-            logUnsuccessfulAttempt("register", userRegistrationRequest.getUsername(), errors);
+            logUnsuccessfulUserAction("register", userRegistrationRequest.getUsername(), errors);
             return ResponseEntity.badRequest().body(errors);
         }
         // Else go to service layer
@@ -58,18 +58,18 @@ public class AuthenticationController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest, BindingResult bindingResult){
 
-        // Capitalize the first letter of the username
+        // Lower-case the username and then capitalize the first letter
         String username = userLoginRequest.getUsername().toLowerCase();
         userLoginRequest.setUsername(StringUtils.capitalize(username));
 
         // Log user attempt to login
-        logAttempt("login", userLoginRequest.getUsername());
+        logUserAction("login", userLoginRequest.getUsername());
 
         // Check if valid login request
         if(bindingResult.hasErrors()){
             Map<String, String> errors = getErrors(bindingResult);
             // Log unsuccessful login attempt.
-            logUnsuccessfulAttempt("login", userLoginRequest.getUsername(), errors);
+            logUnsuccessfulUserAction("login", userLoginRequest.getUsername(), errors);
             return ResponseEntity.badRequest().body(errors);
         }
         UserLoginResponse userLoginResponse = jwtService.login(userLoginRequest);
@@ -83,10 +83,10 @@ public class AuthenticationController {
                         error -> Objects.toString(error.getDefaultMessage(), "")));
     }
 
-    private void logUnsuccessfulAttempt(String action, String username, Map<String, String> errors){
+    private void logUnsuccessfulUserAction(String action, String username, Map<String, String> errors){
         log.debug("User with username {} failed to {} due to validation errors: {}", username, action, errors);
     }
-    private void logAttempt(String action, String username){
+    private void logUserAction(String action, String username){
         log.debug("User tries to {} with username {}.", action, username);
     }
 }

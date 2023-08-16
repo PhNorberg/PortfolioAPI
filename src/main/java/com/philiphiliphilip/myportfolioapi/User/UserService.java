@@ -1,7 +1,9 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
 import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
+import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioDTOUsernameLevel;
 import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioDTOUsersLevel;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -26,12 +28,18 @@ public class UserService {
                 .collect(Collectors.toList()))).collect(Collectors.toList());
     }
 
-    public User getUserById(Integer id){
-        Optional<User> user = userRepository.findById(id);
+    public UserDTOUsernameLevel retrieveUserByUsername(String username){
+
+        // Lower-case and capitalize the first letter of inputted username
+        username = username.toLowerCase();
+        String capitalizedUsername = StringUtils.capitalize(username);
+        Optional<User> user = userRepository.findByUsername(capitalizedUsername);
         if (user.isEmpty()){
-            throw new UserNotFoundException("id:"+id);
+            throw new UserNotFoundException(capitalizedUsername);
         }
-        return user.get();
+
+        return new UserDTOUsernameLevel(user.get().getUsername(), user.get().getPortfolio().stream().map(portfolio -> new
+                PortfolioDTOUsernameLevel(portfolio.getName(), portfolio.getValueNow())).collect(Collectors.toList()));
     }
 
     public ResponseEntity<User> createUser(User user){

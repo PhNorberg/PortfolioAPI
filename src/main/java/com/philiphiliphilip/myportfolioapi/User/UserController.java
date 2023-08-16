@@ -20,18 +20,29 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<UserDTOUsersLevel> retrieveAllUsers(){
+    public ResponseEntity<List<UserDTOUsersLevel>> retrieveAllUsers(){
+
+        // Get info about user for loggings sake
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         log.debug("GET /users was called by user {}.", username);
         List<UserDTOUsersLevel> users = userService.getAllUsers();
         log.debug("GET /users call was successful by user {}.", username);
-        return users;
+
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable Integer id){
-        return userService.getUserById(id);
+    @GetMapping("/users/{username}")
+    public ResponseEntity<UserDTOUsernameLevel> retrieveUser(@PathVariable String username){
+
+        // Get info about user for loggings sake
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String callingUser = authentication.getName();
+        log.debug("GET /users/{} was called by user {}.", username, callingUser);
+        UserDTOUsernameLevel userDTOUsernameLevel = userService.retrieveUserByUsername(username);
+        log.debug("GET /users/{} call was successful by user {}.", username, callingUser);
+
+        return ResponseEntity.ok(userDTOUsernameLevel);
     }
 
     @PostMapping("/users")
