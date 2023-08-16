@@ -1,8 +1,8 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
-public class UserRegistrationResponse {
+public class UserDeleteResponse {
 
-    private final String message = "User registered successfully";
+    private final String message = "User deleted successfully";
 
     public String getMessage() {
         return message;

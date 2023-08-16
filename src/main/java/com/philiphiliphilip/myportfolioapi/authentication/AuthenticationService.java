@@ -48,7 +48,7 @@ public class AuthenticationService {
         userRepository.save(newUser);
         // Log successful register attempt.
         log.debug("User with username {} registered successfully.", registrationRequest.getUsername());
-        return new UserRegistrationResponse("User registered successfully");
+        return new UserRegistrationResponse();
     }
 
 
