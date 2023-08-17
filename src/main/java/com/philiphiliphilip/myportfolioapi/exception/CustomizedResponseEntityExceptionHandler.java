@@ -76,4 +76,25 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "You don't have the needed " +
                 "authorization to execute this request."));
     }
+
+    @ExceptionHandler(PortfolioNameNotAcceptedException.class)
+    public ResponseEntity<Object> handlePortfolioNameNotAcceptedException(PortfolioNameNotAcceptedException portfolioNameNotAcceptedException){
+        // Log the detailed error message for developers
+        log.error(portfolioNameNotAcceptedException.getMessage(), portfolioNameNotAcceptedException);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message" ,
+                "Invalid portfolio creation name. No special characters, spaces at the end nor beginning " +
+                        "or double spaces allowed."));
+    }
+
+    @ExceptionHandler(PortfolioNameAlreadyExistsException.class)
+    public ResponseEntity<Object> handlePortfolioNameAlreadyExistsException(PortfolioNameAlreadyExistsException portfolioNameAlreadyExistsException){
+        // Log the detailed erorr message for developers
+        log.error(portfolioNameAlreadyExistsException.getMessage(), portfolioNameAlreadyExistsException);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "You already created a portfolio " +
+                "with this name. Try again with another name."));
+    }
 }

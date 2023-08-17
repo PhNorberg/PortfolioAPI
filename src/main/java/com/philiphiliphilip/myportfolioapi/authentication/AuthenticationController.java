@@ -72,8 +72,8 @@ public class AuthenticationController {
             logUnsuccessfulUserAction("login", userLoginRequest.getUsername(), errors);
             return ResponseEntity.badRequest().body(errors);
         }
+        // Else go to service layer
         UserLoginResponse userLoginResponse = jwtService.login(userLoginRequest);
-        log.debug("User with username {} logged in successfully.", userLoginRequest.getUsername());
         return ResponseEntity.ok(userLoginResponse);
     }
 

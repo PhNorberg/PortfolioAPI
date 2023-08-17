@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 // Added to prevent infinite recursion when accessing /users. Without it Jackson will serialize User which has a
@@ -36,18 +37,15 @@ public class Portfolio {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Portfolio(Integer id, String name, List<Asset> assets, User user) {
-        this.id = id;
+    public Portfolio(String name, User user) {
         this.name = name;
-        this.assets = assets;
+        this.assets = new ArrayList<>();
         this.user = user;
         this.totalInvested = BigDecimal.ZERO;
         this.valueNow = BigDecimal.ZERO;
         this.profitFactor = BigDecimal.ZERO;
         this.grossProfitDollars = BigDecimal.ZERO;
         this.netProfitDollars = BigDecimal.ZERO;
-        updateStatistics();
-
     }
 
     public Portfolio() {

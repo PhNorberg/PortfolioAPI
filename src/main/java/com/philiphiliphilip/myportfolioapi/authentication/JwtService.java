@@ -2,6 +2,8 @@ package com.philiphiliphilip.myportfolioapi.authentication;
 
 import com.philiphiliphilip.myportfolioapi.User.UserLoginRequest;
 import com.philiphiliphilip.myportfolioapi.User.UserLoginResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
 
+    private final static Logger log = LoggerFactory.getLogger(JwtService.class);
     private AuthenticationManager authenticationManager;
     private JwtEncoder jwtEncoder;
 
@@ -40,6 +43,7 @@ public class JwtService {
         // and granted authorities.
         Authentication authenticatedUser = authenticationManager.authenticate(authenticationToken);
         String token = createToken(authenticatedUser);
+        log.debug("User with username {} logged in successfully.", userLoginRequest.getUsername());
         return new UserLoginResponse(token);
     }
     

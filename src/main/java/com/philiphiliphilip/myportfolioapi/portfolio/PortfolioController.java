@@ -2,6 +2,7 @@ package com.philiphiliphilip.myportfolioapi.portfolio;
 
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,20 +18,25 @@ public class PortfolioController {
     }
 
 
-    @GetMapping("/users/{id}/portfolios")
-    public List<PortfolioDTO> getAllPortfolios(@PathVariable Integer id) {
-        return portfolioService.getAllPortfolios(id);
+    @GetMapping("/users/{username}/portfolios")
+    public ResponseEntity<List<PortfolioDTOUsernameLevel>> getAllPortfolios(@PathVariable String username) {
+        List<PortfolioDTOUsernameLevel> portfolios = portfolioService.getAllPortfolios(username);
+        return ResponseEntity.ok(portfolios);
     }
     
-    @GetMapping("/users/{userId}/portfolios/{portfolioId}")
-    public PortfolioDTO getPortfolioById(@PathVariable Integer userId, @PathVariable Integer portfolioId){
-        return portfolioService.getPortfolioById(userId, portfolioId);
-
+    @GetMapping("/users/{username}/portfolios/{portfolioname}")
+    // this guy should be PortfolionamesLevel
+    public ResponseEntity<PortfolioDTOPortfoliosLevel> getUserPortfolioByPortfolioname(@PathVariable String username, @PathVariable String portfolioname){
+        PortfolioDTOPortfoliosLevel getResponse = portfolioService.getUserPortfolioByPortfolioname(username, portfolioname);
+        return ResponseEntity.ok(getResponse);
     }
 
-    @PostMapping("/users/{id}/portfolios")
-    public ResponseEntity<Portfolio> createPortfolio(@RequestBody Portfolio portfolio, @PathVariable Integer id){
-        return portfolioService.createPortfolio(portfolio, id);
+    @PostMapping("/users/{username}/portfolios")
+    @PreAuthorize("@usernameTransformer.transform(#username) == authentication.name")
+    public ResponseEntity<PortfolioCreationResponse> createPortfolio(@RequestBody PortfolioCreationRequest creationRequest
+            , @PathVariable String username){
+        PortfolioCreationResponse creationResponse = portfolioService.createPortfolio(creationRequest, username);
+        return ResponseEntity.ok(creationResponse);
     }
 
     @DeleteMapping("/users/{userId}/portfolios/{portfolioId}")
