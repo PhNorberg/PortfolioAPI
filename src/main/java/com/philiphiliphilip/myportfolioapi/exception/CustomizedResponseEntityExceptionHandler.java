@@ -1,5 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.exception;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -96,5 +97,15 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         // Return a message to the user
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "You already created a portfolio " +
                 "with this name. Try again with another name."));
+    }
+
+    @ExceptionHandler(PortfolioNotFoundException.class)
+    public ResponseEntity<Object> handlePortfolioNotFoundException(PortfolioNotFoundException portfolioNotFoundException){
+        // Log the detailed error message for developers
+        log.error(portfolioNotFoundException.getMessage(), portfolioNotFoundException);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message",
+                "Portfolio with this name not found. Try again"));
     }
 }

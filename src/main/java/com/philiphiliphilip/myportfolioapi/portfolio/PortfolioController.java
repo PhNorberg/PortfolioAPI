@@ -25,10 +25,10 @@ public class PortfolioController {
     }
     
     @GetMapping("/users/{username}/portfolios/{portfolioname}")
-    // this guy should be PortfolionamesLevel
-    public ResponseEntity<PortfolioDTOPortfoliosLevel> getUserPortfolioByPortfolioname(@PathVariable String username, @PathVariable String portfolioname){
-        PortfolioDTOPortfoliosLevel getResponse = portfolioService.getUserPortfolioByPortfolioname(username, portfolioname);
-        return ResponseEntity.ok(getResponse);
+    // If you look at your own portfolio, you get a more detailed view than if you check another ones.
+    public ResponseEntity<PortfolioDTO> getUserPortfolioByPortfolioname(@PathVariable String username, @PathVariable String portfolioname){
+        PortfolioDTO portfolio = portfolioService.getUserPortfolioByPortfolioname(username, portfolioname);
+        return ResponseEntity.ok(portfolio);
     }
 
     @PostMapping("/users/{username}/portfolios")

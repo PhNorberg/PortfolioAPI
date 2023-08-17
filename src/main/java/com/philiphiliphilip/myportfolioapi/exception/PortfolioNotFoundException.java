@@ -3,9 +3,17 @@ package com.philiphiliphilip.myportfolioapi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND)
+
 public class PortfolioNotFoundException extends RuntimeException {
+
+    private String message;
     public PortfolioNotFoundException(String message) {
-        super(message);
+        super("Portfolio \"" + message + "\" not found.");
+        this.message = message;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

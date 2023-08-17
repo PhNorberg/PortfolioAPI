@@ -1,15 +1,15 @@
 package com.philiphiliphilip.myportfolioapi.User;
 
-import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioDTOPortfoliosLevel;
+import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioDTOPortfolionameLevelSelf;
 
 import java.util.List;
 
 public class UserDTOPortfoliosLevel {
 
     private String username;
-    private List<PortfolioDTOPortfoliosLevel> portfolios;
+    private List<PortfolioDTOPortfolionameLevelSelf> portfolios;
 
-    public UserDTOPortfoliosLevel(String username, List<PortfolioDTOPortfoliosLevel> portfolios) {
+    public UserDTOPortfoliosLevel(String username, List<PortfolioDTOPortfolionameLevelSelf> portfolios) {
         this.username = username;
         this.portfolios = portfolios;
     }
@@ -22,11 +22,11 @@ public class UserDTOPortfoliosLevel {
         this.username = username;
     }
 
-    public List<PortfolioDTOPortfoliosLevel> getPortfolios() {
+    public List<PortfolioDTOPortfolionameLevelSelf> getPortfolios() {
         return portfolios;
     }
 
-    public void setPortfolios(List<PortfolioDTOPortfoliosLevel> portfolios) {
+    public void setPortfolios(List<PortfolioDTOPortfolionameLevelSelf> portfolios) {
         this.portfolios = portfolios;
     }
 }
