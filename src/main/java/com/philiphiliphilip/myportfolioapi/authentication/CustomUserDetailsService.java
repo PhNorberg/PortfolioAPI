@@ -1,7 +1,7 @@
 package com.philiphiliphilip.myportfolioapi.authentication;
 
-import com.philiphiliphilip.myportfolioapi.User.User;
-import com.philiphiliphilip.myportfolioapi.User.UserRepository;
+import com.philiphiliphilip.myportfolioapi.User.model.User;
+import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

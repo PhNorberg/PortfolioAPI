@@ -1,15 +1,15 @@
 package com.philiphiliphilip.myportfolioapi.transaction;
 
-import com.philiphiliphilip.myportfolioapi.User.User;
+import com.philiphiliphilip.myportfolioapi.User.model.User;
 import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
-import com.philiphiliphilip.myportfolioapi.User.UserRepository;
+import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
 import com.philiphiliphilip.myportfolioapi.asset.Asset;
 import com.philiphiliphilip.myportfolioapi.exception.AssetNotFoundException;
 import com.philiphiliphilip.myportfolioapi.asset.AssetRepository;
 import com.philiphiliphilip.myportfolioapi.exception.TransactionNotFoundException;
-import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
+import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
 import com.philiphiliphilip.myportfolioapi.exception.PortfolioNotFoundException;
-import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioRepository;
+import com.philiphiliphilip.myportfolioapi.portfolio.repository.PortfolioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

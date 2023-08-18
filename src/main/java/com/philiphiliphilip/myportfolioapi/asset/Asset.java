@@ -2,7 +2,7 @@ package com.philiphiliphilip.myportfolioapi.asset;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
+import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
 import com.philiphiliphilip.myportfolioapi.transaction.Transaction;
 import jakarta.persistence.*;
 import org.json.simple.parser.JSONParser;
@@ -19,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
@@ -48,14 +49,11 @@ public class Asset {
     private Portfolio portfolio;
     @OneToMany(mappedBy = "asset", cascade = CascadeType.REMOVE)
     private List<Transaction> transactions;
-    public Asset(Integer id, String tickerSymbol, String assetType, BigDecimal taxRate,
-                 Portfolio portfolio, List<Transaction> transactions) {
-        this.id = id;
+    public Asset(String tickerSymbol, String assetType, BigDecimal taxRate) {
         this.tickerSymbol = tickerSymbol;
         this.assetType = assetType;
         this.taxRate = taxRate;
-        this.portfolio = portfolio;
-        this.transactions = transactions;
+        this.transactions = new ArrayList<>();
         this.quantity = BigDecimal.ZERO;
         this.purchasePrice = BigDecimal.ZERO;
         this.currentPrice = BigDecimal.ZERO; // Updated inside updateProfitFactor(). Might refactor it out later.
@@ -64,7 +62,7 @@ public class Asset {
         this.profitFactor = BigDecimal.ZERO;
         this.grossProfitDollars = BigDecimal.ZERO;
         this.netProfitDollars = BigDecimal.ZERO;
-        updateStatistics();
+        //updateStatistics();
     }
 
     public Asset() {

@@ -1,9 +1,9 @@
 package com.philiphiliphilip.myportfolioapi.authentication;
 
-import com.philiphiliphilip.myportfolioapi.User.UserLoginRequest;
-import com.philiphiliphilip.myportfolioapi.User.UserLoginResponse;
-import com.philiphiliphilip.myportfolioapi.User.UserRegistrationRequest;
-import com.philiphiliphilip.myportfolioapi.User.UserRegistrationResponse;
+import com.philiphiliphilip.myportfolioapi.User.request.UserLoginRequest;
+import com.philiphiliphilip.myportfolioapi.User.response.UserLoginResponse;
+import com.philiphiliphilip.myportfolioapi.User.request.UserRegistrationRequest;
+import com.philiphiliphilip.myportfolioapi.User.response.UserRegistrationResponse;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

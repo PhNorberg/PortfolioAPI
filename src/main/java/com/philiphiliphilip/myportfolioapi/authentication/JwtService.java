@@ -1,7 +1,7 @@
 package com.philiphiliphilip.myportfolioapi.authentication;
 
-import com.philiphiliphilip.myportfolioapi.User.UserLoginRequest;
-import com.philiphiliphilip.myportfolioapi.User.UserLoginResponse;
+import com.philiphiliphilip.myportfolioapi.User.request.UserLoginRequest;
+import com.philiphiliphilip.myportfolioapi.User.response.UserLoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,36 +1,43 @@
 package com.philiphiliphilip.myportfolioapi.asset;
 
-import com.philiphiliphilip.myportfolioapi.User.User;
-import com.philiphiliphilip.myportfolioapi.exception.AssetNotFoundException;
-import com.philiphiliphilip.myportfolioapi.exception.AuthorizationException;
-import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
-import com.philiphiliphilip.myportfolioapi.User.UserRepository;
-import com.philiphiliphilip.myportfolioapi.portfolio.Portfolio;
-import com.philiphiliphilip.myportfolioapi.exception.PortfolioNotFoundException;
-import com.philiphiliphilip.myportfolioapi.portfolio.PortfolioRepository;
+import com.philiphiliphilip.myportfolioapi.User.model.User;
+import com.philiphiliphilip.myportfolioapi.exception.*;
+import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
+import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
+import com.philiphiliphilip.myportfolioapi.portfolio.repository.PortfolioRepository;
 import com.philiphiliphilip.myportfolioapi.transaction.TransactionRepository;
-import org.springframework.http.ResponseEntity;
+import com.philiphiliphilip.myportfolioapi.utility.NameFormatter;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class AssetService {
 
+    private final static Logger log = LoggerFactory.getLogger(AssetService.class);
     private UserRepository userRepository;
     private PortfolioRepository portfolioRepository;
     private AssetRepository assetRepository;
     private TransactionRepository transactionRepository;
+    private NameFormatter usernameFormatter;
+    private NameFormatter portfolionameFormatter;
 
     public AssetService(UserRepository userRepository, PortfolioRepository portfolioRepository,
-                        AssetRepository assetRepository, TransactionRepository transactionRepository) {
+                        AssetRepository assetRepository, TransactionRepository transactionRepository,
+                        @Qualifier("usernameFormatter") NameFormatter usernameFormatter,
+                        @Qualifier("portfolionameFormatter") NameFormatter portfolionameFormatter) {
         this.userRepository = userRepository;
         this.portfolioRepository = portfolioRepository;
         this.assetRepository = assetRepository;
         this.transactionRepository = transactionRepository;
+        this.usernameFormatter = usernameFormatter;
+        this.portfolionameFormatter = portfolionameFormatter;
     }
 
     private AssetDTO assetConverter(Asset asset){
@@ -68,26 +75,44 @@ public class AssetService {
         return userPortfolio.getAssets().stream().map(this::assetConverter).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Asset> createAsset(Asset asset, Integer userId, Integer portfolioId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
-        Portfolio userPortfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
-        if(!user.getPortfolio().contains(userPortfolio)){
-            throw new AuthorizationException("User does not own this portfolio.");
+    @Transactional
+    public AssetCreationResponse createAsset(AssetCreationRequest assetCreationRequest, String username,
+                                             String portfolioname) {
+
+        // Log attempt of creating asset X to portfolio Y.
+        // Format username and portfolioname input.
+        String capitalizedUsername = usernameFormatter.format(username);
+        String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
+        log.debug("{} attempting to create asset {} in portfolio {}.", capitalizedUsername,
+                assetCreationRequest.getTickerSymbol(), capitalizedPortfolioname);
+
+
+        // Check if portfolio actually belongs to user. Throw exception if not.
+        Optional<User> user = userRepository.findByUsername(capitalizedUsername);
+        Portfolio portfolio = user.get().getPortfolio().stream().filter(p -> p.getName().equals(capitalizedPortfolioname))
+                .findFirst().orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
+
+        // Make sure that asset with tickersymbol isnt already in the portfolio. If so, throw exception saying
+        // that it does. Also tell the user if he wishes to add to his position, go to /transactions
+        String tickerSymbol = assetCreationRequest.getTickerSymbol().toUpperCase();
+        boolean assetExists = portfolio.getAssets().stream().anyMatch(asset -> asset.getTickerSymbol().equals(tickerSymbol));
+        if (assetExists){
+            throw new AssetAlreadyExistsException(tickerSymbol);
         }
 
-        // To do: Shouldnt be able to create an asset which already exists in portfolio (base it on tickerSymbol)
-        asset.setPortfolio(userPortfolio);
-        assetRepository.save(asset);
+        // Create the asset and add it to the users portfolio and then save the portfolio (cascading takes care of the saves)
+        Asset asset = new Asset(tickerSymbol, assetCreationRequest.getAssetType(),
+                assetCreationRequest.getTaxRate());
+        asset.setPortfolio(portfolio);
+        //assetRepository.save(asset);
+        // Add the asset to the users portfolio and save portfoliorepo
+        portfolio.getAssets().add(asset);
+        portfolioRepository.save(portfolio);
 
-        userPortfolio.getAssets().add(asset);
-        portfolioRepository.save(userPortfolio);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(user.getId())
-                .toUri();
-
-        return ResponseEntity.created(location).build();
+        // return assetcreationresponse
+        log.debug("{} attempt to create asset {} in portfolio {} succeeded.", capitalizedUsername,
+                assetCreationRequest.getTickerSymbol(), capitalizedPortfolioname);
+        return new AssetCreationResponse(tickerSymbol);
     }
 
     public void deleteAsset(Integer userId, Integer portfolioId, Integer assetId) {

@@ -1,15 +1,13 @@
 package com.philiphiliphilip.myportfolioapi.authentication;
 
-import com.philiphiliphilip.myportfolioapi.User.User;
-import com.philiphiliphilip.myportfolioapi.User.UserRegistrationRequest;
-import com.philiphiliphilip.myportfolioapi.User.UserRegistrationResponse;
-import com.philiphiliphilip.myportfolioapi.User.UserRepository;
+import com.philiphiliphilip.myportfolioapi.User.model.User;
+import com.philiphiliphilip.myportfolioapi.User.request.UserRegistrationRequest;
+import com.philiphiliphilip.myportfolioapi.User.response.UserRegistrationResponse;
+import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
 import com.philiphiliphilip.myportfolioapi.exception.UsernameAlreadyExistsException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;

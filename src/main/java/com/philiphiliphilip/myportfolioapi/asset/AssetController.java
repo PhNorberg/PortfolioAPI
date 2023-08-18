@@ -1,9 +1,16 @@
 package com.philiphiliphilip.myportfolioapi.asset;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 public class AssetController {
@@ -24,9 +31,13 @@ public class AssetController {
         return assetService.getPortfolioAssets(userId, portfolioId);
     }
 
-    @PostMapping("/users/{userId}/portfolios/{portfolioId}/assets")
-    public ResponseEntity<Asset> createAsset(@RequestBody Asset asset, @PathVariable Integer userId, @PathVariable Integer portfolioId){
-        return assetService.createAsset(asset, userId, portfolioId);
+    @PostMapping("/users/{username}/portfolios/{portfolioname}/assets")
+    @PreAuthorize("@usernameTransformer.transform(#username) == authentication.name")
+    public ResponseEntity<?> createAsset(@Valid @RequestBody AssetCreationRequest assetCreationRequest,
+                                                             @PathVariable String username,
+                                                             @PathVariable String portfolioname){
+        AssetCreationResponse response = assetService.createAsset(assetCreationRequest, username, portfolioname);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/users/{userId}/portfolios/{portfolioId}/{assetId}")
