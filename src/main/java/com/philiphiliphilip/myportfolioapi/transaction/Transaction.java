@@ -1,7 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.transaction;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.philiphiliphilip.myportfolioapi.asset.Asset;
+import com.philiphiliphilip.myportfolioapi.asset.model.Asset;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -22,13 +21,10 @@ public class Transaction {
     //@JsonIgnore
     private Asset asset;
 
-    public Transaction(Integer id, String transactionType, BigDecimal quantity, LocalDateTime purchaseDate, BigDecimal purchasePrice, Asset asset) {
-        this.id = id;
+    public Transaction(String transactionType, BigDecimal quantity, BigDecimal purchasePrice) {
         this.transactionType = transactionType;
         this.quantity = quantity;
-        this.purchaseDate = purchaseDate;
         this.purchasePrice = purchasePrice;
-        this.asset = asset;
     }
 
     public Transaction(){

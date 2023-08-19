@@ -1,8 +1,9 @@
-package com.philiphiliphilip.myportfolioapi.asset;
+package com.philiphiliphilip.myportfolioapi.asset.converter;
 
+import com.philiphiliphilip.myportfolioapi.asset.dto.AssetDTOPortfolionameLevelOther;
+import com.philiphiliphilip.myportfolioapi.asset.dto.AssetDTOPortfolionameLevelSelf;
+import com.philiphiliphilip.myportfolioapi.asset.model.Asset;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
 
 @Component
 public class AssetConverter {

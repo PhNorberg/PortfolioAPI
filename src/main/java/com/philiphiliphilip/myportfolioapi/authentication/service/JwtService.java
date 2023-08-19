@@ -1,4 +1,4 @@
-package com.philiphiliphilip.myportfolioapi.authentication;
+package com.philiphiliphilip.myportfolioapi.authentication.service;
 
 import com.philiphiliphilip.myportfolioapi.User.request.UserLoginRequest;
 import com.philiphiliphilip.myportfolioapi.User.response.UserLoginResponse;

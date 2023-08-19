@@ -1,6 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.portfolio.converter;
 
-import com.philiphiliphilip.myportfolioapi.asset.AssetConverter;
+import com.philiphiliphilip.myportfolioapi.asset.converter.AssetConverter;
 import com.philiphiliphilip.myportfolioapi.portfolio.dto.PortfolioDTOPortfolionameLevelOther;
 import com.philiphiliphilip.myportfolioapi.portfolio.dto.PortfolioDTOPortfolionameLevelSelf;
 import com.philiphiliphilip.myportfolioapi.portfolio.dto.PortfolioDTOUsernameLevel;

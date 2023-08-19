@@ -3,7 +3,7 @@ package com.philiphiliphilip.myportfolioapi.portfolio.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.philiphiliphilip.myportfolioapi.User.model.User;
-import com.philiphiliphilip.myportfolioapi.asset.Asset;
+import com.philiphiliphilip.myportfolioapi.asset.model.Asset;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -51,7 +51,7 @@ public class Portfolio {
     public Portfolio() {
     }
 
-    public void updateStatistics() {
+    public void updateStatistics(Asset asset) {
         updateTotalInvested();
         updateValueNow();
         updateProfitFactor();
@@ -68,7 +68,9 @@ public class Portfolio {
     }
 
     private void updateProfitFactor(){
-        this.profitFactor = (this.valueNow.divide(this.totalInvested, 10, RoundingMode.DOWN)).setScale(2, RoundingMode.DOWN);
+        this.profitFactor = (this.valueNow.compareTo(BigDecimal.ZERO) > 0) ?
+                (this.valueNow.divide(this.totalInvested, 10, RoundingMode.DOWN)).setScale(2, RoundingMode.DOWN) :
+                BigDecimal.ZERO;
     }
 
     private void updateGrossProfitDollars(){

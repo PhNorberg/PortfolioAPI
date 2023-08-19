@@ -1,4 +1,4 @@
-package com.philiphiliphilip.myportfolioapi.asset;
+package com.philiphiliphilip.myportfolioapi.asset.dto;
 
 import com.philiphiliphilip.myportfolioapi.transaction.Transaction;
 

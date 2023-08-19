@@ -136,19 +136,38 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                 "have an asset named that already."));
     }
 
+//    @ExceptionHandler(AssetNotFoundException.class)
+//    public ResponseEntity<Object> handleAssetNotFoundException(AssetNotFoundException assetNotFoundException){
+//        // Log the detailed error message for developers
+//        log.error(assetNotFoundException.getMessage(), assetNotFoundException);
+//
+//        // Return a message to the user
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Asset not found."));
+//    }
 
+//    @ExceptionHandler(AssetQuantityNotEnoughException.class)
+//    public ResponseEntity<Object> handleAssetQuantityNotEnoughException(AssetQuantityNotEnoughException assetQuantityNotEnoughException){
+//        // Log the detailed error message for developers
+//        log.error(assetQuantityNotEnoughException.getMessage(), assetQuantityNotEnoughException);
+//
+//        // Return a message to the user
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Asset quantity" +
+//                "to sell is too big."));
+//    }
     //@ExceptionHandler(MethodArgumentNotValidException.class)
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatusCode status, WebRequest request){
         // Log the detailed error message for developers
         log.error(ex.getMessage(), ex);
-
+        log.error("WE ARE INSIDE THE HANDLEMETHODARGUMENTNOTVALID LMEOW");
         BindingResult bindingResult = ex.getBindingResult();
 
         Map<String, String> errors = bindingResult.getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField,
-                        error -> Objects.toString(error.getDefaultMessage(), "")));
+                        error -> Objects.toString(error.getDefaultMessage(), ""),
+                        // binary operator that concatenas errors if two or more validation errors struck
+                        (oldValue, newValue) -> oldValue + "; " + newValue));
         return ResponseEntity.badRequest().body(errors);
         }
     }

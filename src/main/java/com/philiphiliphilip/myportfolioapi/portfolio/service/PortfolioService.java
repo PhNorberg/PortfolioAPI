@@ -12,7 +12,8 @@ import com.philiphiliphilip.myportfolioapi.portfolio.request.PortfolioCreationRe
 import com.philiphiliphilip.myportfolioapi.portfolio.response.PortfolioCreationResponse;
 import com.philiphiliphilip.myportfolioapi.portfolio.response.PortfolioDeletionResponse;
 import com.philiphiliphilip.myportfolioapi.utility.NameFormatter;
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,40 +1,49 @@
 package com.philiphiliphilip.myportfolioapi.transaction;
 
 import com.philiphiliphilip.myportfolioapi.User.model.User;
-import com.philiphiliphilip.myportfolioapi.exception.UserNotFoundException;
+import com.philiphiliphilip.myportfolioapi.exception.*;
 import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
-import com.philiphiliphilip.myportfolioapi.asset.Asset;
-import com.philiphiliphilip.myportfolioapi.exception.AssetNotFoundException;
-import com.philiphiliphilip.myportfolioapi.asset.AssetRepository;
-import com.philiphiliphilip.myportfolioapi.exception.TransactionNotFoundException;
+import com.philiphiliphilip.myportfolioapi.asset.model.Asset;
+import com.philiphiliphilip.myportfolioapi.asset.repository.AssetRepository;
 import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
-import com.philiphiliphilip.myportfolioapi.exception.PortfolioNotFoundException;
 import com.philiphiliphilip.myportfolioapi.portfolio.repository.PortfolioRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.http.ResponseEntity;
+import com.philiphiliphilip.myportfolioapi.utility.NameFormatter;
+//import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
-import java.net.URI;
 import java.nio.file.AccessDeniedException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class TransactionService {
 
+    private final static Logger log = LoggerFactory.getLogger(TransactionService.class);
     private UserRepository userRepository;
     private PortfolioRepository portfolioRepository;
     private AssetRepository assetRepository;
     private TransactionRepository transactionRepository;
+    private NameFormatter usernameFormatter;
+    private NameFormatter portfolionameFormatter;
+    private NameFormatter tickersymbolFormatter;
 
     public TransactionService(UserRepository userRepository, PortfolioRepository portfolioRepository,
-                              AssetRepository assetRepository, TransactionRepository transactionRepository) {
+                              AssetRepository assetRepository, TransactionRepository transactionRepository,
+                              @Qualifier("usernameFormatter") NameFormatter usernameFormatter,
+                              @Qualifier("portfolionameFormatter") NameFormatter portfolionameFormatter,
+                              @Qualifier("tickersymbolFormatter") NameFormatter tickersymbolFormatter) {
         this.userRepository = userRepository;
         this.portfolioRepository = portfolioRepository;
         this.assetRepository = assetRepository;
         this.transactionRepository = transactionRepository;
+        this.usernameFormatter = usernameFormatter;
+        this.portfolionameFormatter = portfolionameFormatter;
+        this.tickersymbolFormatter = tickersymbolFormatter;
     }
 
     private TransactionDTO transactionConverter(Transaction transaction){
@@ -50,68 +59,99 @@ public class TransactionService {
         return transactionDTO;
     }
 
-    public List<TransactionDTO> getAllTransactions(Integer userId) {
-        // Create a stream of a users portfolio which is a list, that  each contains  list of assets
-        // that each contains a list of transactions.
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
-        return user.getPortfolio().stream().flatMap(portfolio -> portfolio.getAssets().stream())
-                .flatMap(asset -> asset.getTransactions().stream()).map(this::transactionConverter).collect(Collectors.toList());
-    }
-
-    public List<TransactionDTO> getPortfolioTransactions(Integer userId, Integer portfolioId) throws AccessDeniedException {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
-        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
-        // Check if the user owns the portfolio
-        if (!user.getPortfolio().contains(portfolio)) {
-            throw new AccessDeniedException("User does not own this portfolio");
-        }
-        return portfolio.getAssets().stream().flatMap(asset -> asset.getTransactions().stream())
-                .map(this::transactionConverter).collect(Collectors.toList());
-    }
-
-    public List<TransactionDTO> getAssetTransactions(Integer userId, Integer portfolioId, Integer assetId) throws AccessDeniedException {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
-        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
-        // Check if the user owns the portfolio
-        if (!user.getPortfolio().contains(portfolio)) {
-            throw new AccessDeniedException("User does not own this portfolio");
-        }
-        Asset asset = assetRepository.findById(assetId).orElseThrow(() -> new AssetNotFoundException("id:" + assetId));
-        // Check if asset belongs to portfolio
-        if (!portfolio.getAssets().contains(asset)){
-            throw new AccessDeniedException("Portfolio does not own this asset");
-        }
-        return asset.getTransactions().stream().map(this::transactionConverter).collect(Collectors.toList());
-    }
+    /*
+    To be implemented.
+     */
+//    public List<TransactionDTO> getAllTransactions(Integer userId) {
+//        // Create a stream of a users portfolio which is a list, that  each contains  list of assets
+//        // that each contains a list of transactions.
+//        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
+//        return user.getPortfolio().stream().flatMap(portfolio -> portfolio.getAssets().stream())
+//                .flatMap(asset -> asset.getTransactions().stream()).map(this::transactionConverter).collect(Collectors.toList());
+//    }
+    /*
+    To be implemented.
+     */
+//    public List<TransactionDTO> getPortfolioTransactions(Integer userId, Integer portfolioId) throws AccessDeniedException {
+//        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
+//        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
+//        // Check if the user owns the portfolio
+//        if (!user.getPortfolio().contains(portfolio)) {
+//            throw new AccessDeniedException("User does not own this portfolio");
+//        }
+//        return portfolio.getAssets().stream().flatMap(asset -> asset.getTransactions().stream())
+//                .map(this::transactionConverter).collect(Collectors.toList());
+//    }
+    /*
+    To be implemented.
+     */
+//    public List<TransactionDTO> getAssetTransactions(Integer userId, Integer portfolioId, Integer assetId) throws AccessDeniedException {
+//        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
+//        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
+//        // Check if the user owns the portfolio
+//        if (!user.getPortfolio().contains(portfolio)) {
+//            throw new AccessDeniedException("User does not own this portfolio");
+//        }
+//        Asset asset = assetRepository.findById(assetId).orElseThrow(() -> new AssetNotFoundException("id:" + assetId));
+//        // Check if asset belongs to portfolio
+//        if (!portfolio.getAssets().contains(asset)){
+//            throw new AccessDeniedException("Portfolio does not own this asset");
+//        }
+//        return asset.getTransactions().stream().map(this::transactionConverter).collect(Collectors.toList());
+//    }
 
     @Transactional
-    public ResponseEntity<Transaction> createAssetTransaction(Integer userId, Integer portfolioId, Integer assetId, Transaction transaction) throws AccessDeniedException {
-        // Need to update the asset object to have quantity and purchasePrice etc up to date
-        // Make it @Transactional to make sure that the series of db operations are treated as a single atomic unit.
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("id:" + userId));
-        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("id:" + portfolioId));
-        // Check if the user owns the portfolio
-        if (!user.getPortfolio().contains(portfolio)) {
-            throw new AccessDeniedException("User does not own this portfolio");
-        }
-        Asset asset = assetRepository.findById(assetId).orElseThrow(() -> new AssetNotFoundException("id:" + assetId));
-        // Check if asset belongs to portfolio
-        if (!portfolio.getAssets().contains(asset)){
-            throw new AccessDeniedException("Portfolio does not own this asset");
-        }
+    public TransactionCreationResponse createAssetTransaction(TransactionCreationRequest creationRequest, String username,
+                                                              String portfolioname, String tickersymbol) {
 
+        // Format username, portfolioname, tickersymbol and transactiontype
+        String capitalizedUsername = usernameFormatter.format(username);
+        String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
+        String uppercaseTickersymbol = tickersymbolFormatter.format(tickersymbol);
+        // Make formatter for this:)
+        String lowercaseTransactiontype = creationRequest.getTransactionType().toLowerCase();
+
+        log.debug("User {} trying to add transactiontype {} of asset {} in portfolio {}.",
+                capitalizedUsername, lowercaseTransactiontype, uppercaseTickersymbol,
+                capitalizedPortfolioname);
+        // Fetch user object
+        Optional<User> user = userRepository.findByUsername(capitalizedUsername);
+
+        // Fetch portfolio if it belongs to user
+        Portfolio portfolio = user.get().getPortfolio().stream()
+                .filter(p -> p.getName().equals(capitalizedPortfolioname))
+                .findFirst()
+                .orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
+
+        // Fetch asset if it belongs to portfolio
+        Asset asset = portfolio.getAssets().stream()
+                .filter(a -> a.getTickerSymbol().equals(uppercaseTickersymbol))
+                .findFirst()
+                .orElseThrow(() -> new AssetNotFoundException(uppercaseTickersymbol));
+
+        // If transaction type sell, check asset to see if we have that amount to sell
+        if (lowercaseTransactiontype.equals("sell") &&
+                asset.getQuantity().compareTo(creationRequest.getQuantity()) < 0){
+            throw new AssetQuantityNotEnoughException(asset.getQuantity(), uppercaseTickersymbol);
+        }
+        // Create the transaction
+        Transaction transaction = new Transaction(lowercaseTransactiontype, creationRequest.getQuantity(),
+                creationRequest.getPrice());
+
+        // Create relation between objects.
         transaction.setAsset(asset);
-        transactionRepository.save(transaction);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(user.getId())
-                .toUri();
-
         asset.getTransactions().add(transaction);
-        asset.updateStatistics();
-        assetRepository.save(asset);
-        return ResponseEntity.created(location).build();
+
+        // Update asset statistics
+        asset.updateStatistics(transaction);
+
+        // Save to database
+        userRepository.save(user.get());
+        log.debug("User {} sucessfully added transactiontype {} of asset {} in portfolio {}.",
+                capitalizedUsername, lowercaseTransactiontype, uppercaseTickersymbol,
+                capitalizedPortfolioname);
+        return new TransactionCreationResponse(lowercaseTransactiontype);
+
     }
     @Transactional
     public void deleteAssetTransaction(Integer userId, Integer portfolioId, Integer assetId, Integer transactionId) throws AccessDeniedException {
@@ -133,7 +173,7 @@ public class TransactionService {
 
         asset.getTransactions().remove(transaction);
         transactionRepository.delete(transaction);
-        asset.updateStatistics();
+        asset.updateStatistics(transaction);
         assetRepository.save(asset);
     }
 }

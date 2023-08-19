@@ -6,14 +6,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class PortfolioNotFoundException extends RuntimeException {
 
-    private String message;
-    public PortfolioNotFoundException(String message) {
-        super("Portfolio \"" + message + "\" not found.");
-        this.message = message;
+    public PortfolioNotFoundException(String name) {
+        super("Portfolio \"" + name + "\" not found.");
+
     }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+
 }

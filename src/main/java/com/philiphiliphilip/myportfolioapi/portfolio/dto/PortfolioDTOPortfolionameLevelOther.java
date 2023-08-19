@@ -1,7 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.portfolio.dto;
 
-import com.philiphiliphilip.myportfolioapi.asset.AssetDTOPortfolionameLevelOther;
-import com.philiphiliphilip.myportfolioapi.portfolio.dto.PortfolioDTO;
+import com.philiphiliphilip.myportfolioapi.asset.dto.AssetDTOPortfolionameLevelOther;
 
 import java.math.BigDecimal;
 import java.util.List;

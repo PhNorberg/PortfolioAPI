@@ -1,9 +1,11 @@
-package com.philiphiliphilip.myportfolioapi.authentication;
+package com.philiphiliphilip.myportfolioapi.authentication.controller;
 
 import com.philiphiliphilip.myportfolioapi.User.request.UserLoginRequest;
 import com.philiphiliphilip.myportfolioapi.User.response.UserLoginResponse;
 import com.philiphiliphilip.myportfolioapi.User.request.UserRegistrationRequest;
 import com.philiphiliphilip.myportfolioapi.User.response.UserRegistrationResponse;
+import com.philiphiliphilip.myportfolioapi.authentication.service.AuthenticationService;
+import com.philiphiliphilip.myportfolioapi.authentication.service.JwtService;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

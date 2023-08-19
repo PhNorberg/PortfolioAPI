@@ -1,22 +1,20 @@
-package com.philiphiliphilip.myportfolioapi.asset;
+package com.philiphiliphilip.myportfolioapi.asset.dto;
 
 import java.math.BigDecimal;
 
-public class AssetDTOPortfolionameLevelSelf {
+public class AssetDTOPortfolionameLevelOther {
 
     private String tickerSymbol;
-    private String assetType;
     private BigDecimal quantity;
     private BigDecimal purchasePrice;
     private BigDecimal currentPrice;
     private BigDecimal totalInvested;
     private BigDecimal valueNow;
-    private BigDecimal taxRate;
     private BigDecimal profitFactor;
     private BigDecimal grossProfitDollars;
-    private BigDecimal netProfitDollars;
 
-    public AssetDTOPortfolionameLevelSelf() {
+
+    public AssetDTOPortfolionameLevelOther() {
     }
 
     public String getTickerSymbol() {
@@ -25,14 +23,6 @@ public class AssetDTOPortfolionameLevelSelf {
 
     public void setTickerSymbol(String tickerSymbol) {
         this.tickerSymbol = tickerSymbol;
-    }
-
-    public String getAssetType() {
-        return assetType;
-    }
-
-    public void setAssetType(String assetType) {
-        this.assetType = assetType;
     }
 
     public BigDecimal getQuantity() {
@@ -75,14 +65,6 @@ public class AssetDTOPortfolionameLevelSelf {
         this.valueNow = valueNow;
     }
 
-    public BigDecimal getTaxRate() {
-        return taxRate;
-    }
-
-    public void setTaxRate(BigDecimal taxRate) {
-        this.taxRate = taxRate;
-    }
-
     public BigDecimal getProfitFactor() {
         return profitFactor;
     }
@@ -97,13 +79,5 @@ public class AssetDTOPortfolionameLevelSelf {
 
     public void setGrossProfitDollars(BigDecimal grossProfitDollars) {
         this.grossProfitDollars = grossProfitDollars;
-    }
-
-    public BigDecimal getNetProfitDollars() {
-        return netProfitDollars;
-    }
-
-    public void setNetProfitDollars(BigDecimal netProfitDollars) {
-        this.netProfitDollars = netProfitDollars;
     }
 }
