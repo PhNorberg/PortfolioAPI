@@ -1,6 +1,5 @@
 package com.philiphiliphilip.myportfolioapi.formatter;
 
-import com.philiphiliphilip.myportfolioapi.utility.NameFormatter;
 import org.springframework.stereotype.Service;
 
 @Service

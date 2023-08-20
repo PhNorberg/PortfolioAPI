@@ -2,13 +2,15 @@ package com.philiphiliphilip.myportfolioapi.exception;
 
 public class PortfolioNameNotAcceptedException extends RuntimeException {
 
-    private String name;
+    private String toUser;
+
     public PortfolioNameNotAcceptedException(String name) {
-        super("Portfolio name \" " + name + "\" is not a valid portfolio creation name.");
-        this.name = name;
+        super("Portfolio creation with name \" " + name + "\" failed. Not a valid portfolio creation name.");
+        this.toUser = "Invalid portfolio creation name. No special characters, spaces at the end nor beginning, " +
+                "or double spaces allowed.";
     }
 
-    public String getName() {
-        return name;
+    public String getToUser() {
+        return toUser;
     }
 }

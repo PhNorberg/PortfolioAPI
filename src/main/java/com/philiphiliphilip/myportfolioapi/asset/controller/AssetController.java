@@ -35,18 +35,20 @@ public class AssetController {
 //    }
 
     @PostMapping("/users/{username}/portfolios/{portfolioname}/assets")
-    @PreAuthorize("@usernameTransformer.transform(#username) == authentication.name")
+    @PreAuthorize("@usernameFormatter.format(#username) == authentication.name")
     public ResponseEntity<AssetCreationResponse> createAsset(@Valid @RequestBody AssetCreationRequest assetCreationRequest,
                                                              @PathVariable String username,
                                                              @PathVariable String portfolioname){
+
         AssetCreationResponse response = assetService.createAsset(assetCreationRequest, username, portfolioname);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/users/{username}/portfolios/{portfolioname}/{tickersymbol}")
-    @PreAuthorize("@usernameTransformer.transform(#username) == authentication.name")
+    @PreAuthorize("@usernameFormatter.format(#username) == authentication.name")
     public ResponseEntity<AssetDeletionResponse> deleteAsset(@PathVariable String username, @PathVariable String portfolioname,
                                                              @PathVariable String tickersymbol){
+
         AssetDeletionResponse response = assetService.deleteAsset(username, portfolioname, tickersymbol);
         return ResponseEntity.ok().body(response);
 

@@ -2,13 +2,13 @@ package com.philiphiliphilip.myportfolioapi.portfolio.response;
 
 public class PortfolioCreationResponse {
 
-    private String name;
+    private final String message;
 
-    public PortfolioCreationResponse(String name) {
-        this.name = "You created a new portfolio with the name " + name;
+    public PortfolioCreationResponse(String portfolioName) {
+        this.message = "You created a new portfolio with the name " + portfolioName + ".";
     }
 
-    public String getName() {
-        return name;
+    public String getMessage() {
+        return message;
     }
 }

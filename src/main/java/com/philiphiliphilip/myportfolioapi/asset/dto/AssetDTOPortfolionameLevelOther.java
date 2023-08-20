@@ -13,7 +13,6 @@ public class AssetDTOPortfolionameLevelOther {
     private BigDecimal profitFactor;
     private BigDecimal grossProfitDollars;
 
-
     public AssetDTOPortfolionameLevelOther() {
     }
 

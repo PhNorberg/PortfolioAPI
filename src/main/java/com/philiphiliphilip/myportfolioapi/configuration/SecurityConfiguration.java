@@ -34,12 +34,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfiguration {
-
     @Bean
     public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
@@ -61,15 +59,15 @@ public class SecurityConfiguration {
                 .headers().frameOptions().disable();
 
         return http.build();
-
     }
-
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    // Create asymmetric keyPair with 2048-bit length.
+    /*
+    Create asymmetric keyPair with 2048-bit length.
+     */
     @Bean
     public KeyPair keyPair(){
         try {
@@ -81,7 +79,9 @@ public class SecurityConfiguration {
         }
     }
 
-    // Create RSAKey object out of a RSA key pair. Done to use JOSE (JSON Object Signing and Encryption) operations.
+    /*
+    Create RSAKey object out of a RSA key pair. Done to use JOSE (JSON Object Signing and Encryption) operations.
+     */
     @Bean
     public RSAKey rsaKey(KeyPair keyPair){
         return new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
@@ -90,8 +90,10 @@ public class SecurityConfiguration {
                 .build();
     }
 
-    // Wrap the rsaKey in a JWKSet (collection of JWK's).
-    // Then create a JWKSource implementation to retrieve the keys from this set.
+    /*
+    Wrap the rsaKey in a JWKSet (collection of JWK's).
+    Then create a JWKSource implementation to retrieve the keys from this set.
+     */
     @Bean
     public JWKSource<SecurityContext> jwkSource(RSAKey rsaKey){
         var jwkSet = new JWKSet(rsaKey);
@@ -99,7 +101,9 @@ public class SecurityConfiguration {
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 
-    // Method used to decode incoming JWT using the provided RSA public key.
+    /*
+    Method used to decode incoming JWT using the provided RSA public key.
+     */
     @Bean
     public JwtDecoder jwtDecoder(RSAKey rsaKey) throws JOSEException {
         return NimbusJwtDecoder
@@ -107,7 +111,9 @@ public class SecurityConfiguration {
                 .build();
     }
 
-    // Method used to signa and create a JWT from the jwkSource, which then will be given to a user.
+    /*
+    Method used to sign and create a JWT from the jwkSource, which then will be given to a user.
+     */
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
         return new NimbusJwtEncoder(jwkSource);

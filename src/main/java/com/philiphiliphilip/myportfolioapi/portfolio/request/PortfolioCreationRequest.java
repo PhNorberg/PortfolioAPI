@@ -7,10 +7,6 @@ public class PortfolioCreationRequest {
     @NotEmpty(message = "You have to enter something into portfolio name field")
     private String name;
 
-    public PortfolioCreationRequest(String name) {
-        this.name = name;
-    }
-
     public PortfolioCreationRequest(){}
 
     public String getName() {

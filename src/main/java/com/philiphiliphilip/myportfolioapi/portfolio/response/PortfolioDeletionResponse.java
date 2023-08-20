@@ -2,13 +2,13 @@ package com.philiphiliphilip.myportfolioapi.portfolio.response;
 
 public class PortfolioDeletionResponse {
 
-    private String name;
+    private final String message;
 
-    public PortfolioDeletionResponse(String name) {
-        this.name = "You deleted the portfolio with the name " + name;
+    public PortfolioDeletionResponse(String portfolioName) {
+        this.message = "You deleted the portfolio with the name " + portfolioName + ".";
     }
 
-    public String getName() {
-        return name;
+    public String getMessage() {
+        return message;
     }
 }

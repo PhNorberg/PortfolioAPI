@@ -24,7 +24,13 @@ public class PortfolioConverter {
     }
 
     public PortfolioDTOUsernameLevel convertToUsernameLevel(Portfolio portfolio){
-        return new PortfolioDTOUsernameLevel(portfolio.getName(), portfolio.getValueNow());
+
+        PortfolioDTOUsernameLevel dto = new PortfolioDTOUsernameLevel();
+
+        dto.setName(portfolio.getName());
+        dto.setValueNow(portfolio.getValueNow());
+
+        return dto;
     }
 
     public PortfolioDTOPortfolionameLevelSelf convertToPortfolionameLevelSelf(Portfolio portfolio){

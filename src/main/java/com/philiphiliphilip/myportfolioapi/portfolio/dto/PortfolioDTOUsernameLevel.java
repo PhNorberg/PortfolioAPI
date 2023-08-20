@@ -7,9 +7,7 @@ public class PortfolioDTOUsernameLevel {
     private String name;
     private BigDecimal valueNow;
 
-    public PortfolioDTOUsernameLevel(String name, BigDecimal valueNow) {
-        this.name = name;
-        this.valueNow = valueNow;
+    public PortfolioDTOUsernameLevel() {
     }
 
     public String getName() {

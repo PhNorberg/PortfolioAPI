@@ -3,7 +3,7 @@ package com.philiphiliphilip.myportfolioapi.asset.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
-import com.philiphiliphilip.myportfolioapi.transaction.Transaction;
+import com.philiphiliphilip.myportfolioapi.transaction.model.Transaction;
 import jakarta.persistence.*;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONArray;
@@ -63,7 +63,6 @@ public class Asset {
         this.profitFactor = BigDecimal.ZERO;
         this.grossProfitDollars = BigDecimal.ZERO;
         this.netProfitDollars = BigDecimal.ZERO;
-        //updateStatistics();
     }
 
     public Asset() {
@@ -71,13 +70,6 @@ public class Asset {
 
     public void updateStatistics(Transaction transaction) {
         updateQuantity();
-        log.debug("Updated quantity: {}", quantity);
-        if (quantity.compareTo(BigDecimal.ZERO) == 0) {
-            log.debug("quantity equals 0 so we set purchaseprice and profitfactor to 0");
-            purchasePrice = BigDecimal.ZERO;
-            profitFactor = BigDecimal.ZERO;
-            log.debug("purchaseprice {} and profitfactor {}", purchasePrice, profitFactor);
-        }
         if (transaction.getTransactionType().equals("buy"))
             updatePurchasePrice();
         updateTotalInvested();
@@ -86,7 +78,14 @@ public class Asset {
         updateValueNow();
         updateGrossProfitDollars();
         updateNetProfitDollars();
-        this.portfolio.updateStatistics(this);
+        this.portfolio.updateStatistics();
+    }
+
+    public void updatePartialStatistics(){
+        updateProfitFactor();
+        updateValueNow();
+        updateGrossProfitDollars();
+        updateNetProfitDollars();
     }
 
     private void updateQuantity(){
@@ -95,78 +94,43 @@ public class Asset {
     }
 
     private void updatePurchasePrice() {
-        // If quantity is 0, set purchasePrice to 0.
-        if (quantity.compareTo(BigDecimal.ZERO) == 0) {
-            this.purchasePrice = BigDecimal.ZERO;
-        } else {
-            // Move backwards through transaction list, looking only at the transactions that have gotten us to this
-            // current quantity.
-            log.error("do we crash 104 or nah rly");
-            System.out.println("THIS quantity is " + this.quantity);
-            BigDecimal quantity = this.quantity;
-            BigDecimal totalSpent = BigDecimal.ZERO;
-            BigDecimal buyQuantity = BigDecimal.ZERO;
 
-            List<Transaction> reverseTransactions = new ArrayList<>(this.transactions);
-            Collections.reverse(reverseTransactions);
-            for (Transaction transaction : reverseTransactions) {
-                if (transaction.getTransactionType().equals("buy")) {
-                    buyQuantity = buyQuantity.add(transaction.getQuantity());
-                    System.out.println("buyquantity is " + buyQuantity + " and quantity is " + quantity);
-                    if (buyQuantity.compareTo(quantity) == 0) {
-                        System.out.println("WE BREAK");
-                        totalSpent = totalSpent.add(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
-                        break;
-                    } else {
-                        totalSpent = totalSpent.add(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
-                    }
+        // Move backwards through transaction list, looking only at the transactions that have gotten us to this
+        // current quantity.
+        BigDecimal quantity = this.quantity;
+        BigDecimal totalSpent = BigDecimal.ZERO;
+        BigDecimal buyQuantity = BigDecimal.ZERO;
+
+        List<Transaction> reverseTransactions = new ArrayList<>(this.transactions);
+        Collections.reverse(reverseTransactions);
+        for (Transaction transaction : reverseTransactions) {
+            if (transaction.getTransactionType().equals("buy")) {
+                buyQuantity = buyQuantity.add(transaction.getQuantity());
+                if (buyQuantity.compareTo(quantity) == 0) {
+                    totalSpent = totalSpent.add(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
+                    break;
                 } else {
-                    System.out.println("it should equal sell and we should subtract");
-                    buyQuantity = buyQuantity.subtract(transaction.getQuantity());
-                    totalSpent = totalSpent.subtract(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
-                    System.out.println("buyquantity after what i think is sell is " + buyQuantity);
+                    totalSpent = totalSpent.add(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
                 }
+            } else {
+                buyQuantity = buyQuantity.subtract(transaction.getQuantity());
+                totalSpent = totalSpent.subtract(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
             }
-            System.out.println("totalSpent is " + totalSpent);
-            this.purchasePrice = totalSpent.divide(this.quantity, 10, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN);
-
-//            for (Transaction transaction : reverseTransactions) {
-//                if (transaction.getTransactionType().equals("sell")) {
-//                    remainingQuantity = remainingQuantity.add(transaction.getQuantity());
-//                } else if (transaction.getTransactionType().equals("buy")) {
-//                    BigDecimal buyQuantity = transaction.getQuantity();
-//                    if (buyQuantity.compareTo(remainingQuantity) > 0) {
-//                        buyQuantity = remainingQuantity;
-//                    }
-//
-//                    totalSpent = totalSpent.add(transaction.getPurchasePrice().multiply(buyQuantity));
-//                    remainingQuantity = remainingQuantity.subtract(buyQuantity);
-//
-//                    if (remainingQuantity.compareTo(BigDecimal.ZERO) == 0) {
-//                        break;
-//                    }
-//                }
-//            }
-//            BigDecimal totalSpent = this.transactions.stream()
-//                    .filter(transaction -> transaction.getTransactionType().equals("buy"))
-//                    .map(transaction -> transaction.getPurchasePrice().multiply(transaction.getQuantity()))
-//                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-//            this.purchasePrice = totalSpent.divide(this.quantity, 10, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN);
-//            log.error("row 109 purchaseprice updoot");
         }
+        this.purchasePrice = totalSpent.divide(this.quantity, 10, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN);
     }
 
     private void updateTotalInvested(){
         this.totalInvested = this.quantity.multiply(this.purchasePrice).setScale(2, RoundingMode.DOWN);
     }
+
     private void updateProfitFactor() {
         String url = createRequestURL();
 
         try{
             BigDecimal closeValue = callTwelveDataAPI(url);
             this.currentPrice = closeValue.setScale(2, RoundingMode.DOWN);
-            log.debug("ROW 115");
-            this.profitFactor = closeValue.divide(purchasePrice, 10, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN);
+            this.profitFactor = closeValue.divide(purchasePrice, 10, RoundingMode.DOWN);
         } catch (MalformedURLException e) {
             System.err.println("Malformed URL " + e.getMessage());
         } catch (ProtocolException e) {
@@ -204,8 +168,8 @@ public class Asset {
             System.err.println("Error reading file " + e.getMessage());
             return "";
         }
-
     }
+
     private BigDecimal callTwelveDataAPI(String requestURL) throws IOException, ParseException {
         // This call fetches last closing price of given Asset.
 
@@ -236,7 +200,6 @@ public class Asset {
 
             JSONObject firstValueObject = (JSONObject)values.get(0);
             return new BigDecimal((String)firstValueObject.get("close"));
-
     }
 
     private void updateValueNow(){
@@ -248,7 +211,7 @@ public class Asset {
     }
 
     private void updateNetProfitDollars() {
-        log.info("ROW 198");
+
         // Here it crashes when user tries to sell some asset he has 0 quantity of
         BigDecimal taxRateDecimal = this.taxRate.divide(new BigDecimal(100), RoundingMode.DOWN);
         BigDecimal taxAmount = this.grossProfitDollars.multiply(taxRateDecimal);

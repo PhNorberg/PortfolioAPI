@@ -1,6 +1,5 @@
 package com.philiphiliphilip.myportfolioapi.exception;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -8,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -36,132 +34,153 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<Object> handleUsernameAlreadyExists(UsernameAlreadyExistsException usernameAlreadyExistsException){
-        // Log the detailed error message for developers
-        log.error(usernameAlreadyExistsException.getMessage(), usernameAlreadyExistsException);
+    @ExceptionHandler(InvalidRegistrationFormException.class)
+    public ResponseEntity<Object> handleInvalidRegistrationFormException(InvalidRegistrationFormException exception){
+        // Log error to developers
+        logError(exception);
 
-        // Return a message to the user
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Username already taken"));
+        // Get binding result errors and return those to the user.
+        Map<String, String> errors = getErrors(exception);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<Object> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException exception){
+        // Log error to developers
+        logError(exception);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidLoginFormException.class)
+    public ResponseEntity<Object> handleInvalidLoginFormException(InvalidLoginFormException exception){
+        // Log error to developers
+        logError(exception);
+
+        // Get binding result errors and return those to the user.
+        Map<String, String> errors = getErrors(exception);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException authenticationException){
-        // Log the detailed error message for developers
-        log.error(authenticationException.getMessage(), authenticationException);
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message","Invalid login credentials"));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Object> handleUserNotFound(UserNotFoundException userNotFoundException){
-        // Log the detailed error message for developers
-        log.error(userNotFoundException.getMessage(), userNotFoundException);
+    public ResponseEntity<Object> handleUserNotFound(UserNotFoundException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Username doesn't exist."));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getMessage()));
     }
 
     @ExceptionHandler(UserDeletionFailedException.class)
-    public ResponseEntity<Object> handleUserDeletionFailed(UserDeletionFailedException userDeletionFailedException){
-        // Log the deatiled error message for developers
-        log.error(userDeletionFailedException.getMessage(), userDeletionFailedException);
+    public ResponseEntity<Object> handleUserDeletionFailed(UserDeletionFailedException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "User couldn't be deleted. " +
-                "Try again or contact the developer."));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException accessDeniedException, WebRequest request){
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException exception, WebRequest request){
         // Log the detailed error message for developers
         String path = request.getDescription(false);
-        String detailedMessage = String.format("Access denied at %s: %s", path, accessDeniedException.getMessage());
-        log.error(detailedMessage, accessDeniedException);
+        String detailedMessage = String.format("Access denied at %s: %s", path, exception.getMessage());
+        log.error(detailedMessage, exception);
 
         // Return a message to the user
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "You don't have the needed " +
-                "authorization to execute this request."));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", exception.getMessage()));
     }
 
     @ExceptionHandler(PortfolioNameNotAcceptedException.class)
-    public ResponseEntity<Object> handlePortfolioNameNotAcceptedException(PortfolioNameNotAcceptedException portfolioNameNotAcceptedException){
-        // Log the detailed error message for developers
-        log.error(portfolioNameNotAcceptedException.getMessage(), portfolioNameNotAcceptedException);
+    public ResponseEntity<Object> handlePortfolioNameNotAcceptedException(PortfolioNameNotAcceptedException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message" ,
-                "Invalid portfolio creation name. No special characters, spaces at the end nor beginning " +
-                        "or double spaces allowed."));
+                exception.getToUser()));
     }
 
     @ExceptionHandler(PortfolioNameAlreadyExistsException.class)
-    public ResponseEntity<Object> handlePortfolioNameAlreadyExistsException(PortfolioNameAlreadyExistsException portfolioNameAlreadyExistsException){
-        // Log the detailed erorr message for developers
-        log.error(portfolioNameAlreadyExistsException.getMessage(), portfolioNameAlreadyExistsException);
+    public ResponseEntity<Object> handlePortfolioNameAlreadyExistsException(PortfolioNameAlreadyExistsException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "You already created a portfolio " +
-                "with this name. Try again with another name."));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getToUser()));
     }
 
     @ExceptionHandler(PortfolioNotFoundException.class)
-    public ResponseEntity<Object> handlePortfolioNotFoundException(PortfolioNotFoundException portfolioNotFoundException){
-        // Log the detailed error message for developers
-        log.error(portfolioNotFoundException.getMessage(), portfolioNotFoundException);
+    public ResponseEntity<Object> handlePortfolioNotFoundException(PortfolioNotFoundException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message",
-                "Portfolio with this name not found. Try again"));
+                exception.getToUser()));
     }
 
     @ExceptionHandler(PortfolioDeletionFailedException.class)
-    public ResponseEntity<Object> handlePortfolioDeletionFailedException(PortfolioDeletionFailedException portfolioDeletionFailedException){
-        // Log the detailed error message for developers
-        log.error(portfolioDeletionFailedException.getMessage(), portfolioDeletionFailedException);
+    public ResponseEntity<Object> handlePortfolioDeletionFailedException(PortfolioDeletionFailedException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Portfolio couldn't be deleted. " +
-                "Try again or contact the developer."));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
     }
 
     @ExceptionHandler(AssetAlreadyExistsException.class)
-    public ResponseEntity<Object> handleAssetAlreadyExistsException(AssetAlreadyExistsException assetAlreadyExistsException){
-        // Log the detailed error message for developers
-        log.error(assetAlreadyExistsException.getMessage(), assetAlreadyExistsException);
+    public ResponseEntity<Object> handleAssetAlreadyExistsException(AssetAlreadyExistsException exception){
+        // Log error to developers
+        logError(exception);
 
         // Return a message to the user
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Asset couldnt be created. You " +
-                "have an asset named that already."));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getToUser()));
+    }
+    @ExceptionHandler(AssetNotFoundException.class)
+    public ResponseEntity<Object> handleAssetNotFoundException(AssetNotFoundException exception) {
+        // Log error to developers
+        logError(exception);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getToUser()));
     }
 
-//    @ExceptionHandler(AssetNotFoundException.class)
-//    public ResponseEntity<Object> handleAssetNotFoundException(AssetNotFoundException assetNotFoundException){
-//        // Log the detailed error message for developers
-//        log.error(assetNotFoundException.getMessage(), assetNotFoundException);
-//
-//        // Return a message to the user
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Asset not found."));
-//    }
+    @ExceptionHandler(AssetQuantityNotEnoughException.class)
+    public ResponseEntity<Object> handleAssetQuantityNotEnoughException(AssetQuantityNotEnoughException exception){
+        // Log error to developers
+        logError(exception);
 
-//    @ExceptionHandler(AssetQuantityNotEnoughException.class)
-//    public ResponseEntity<Object> handleAssetQuantityNotEnoughException(AssetQuantityNotEnoughException assetQuantityNotEnoughException){
-//        // Log the detailed error message for developers
-//        log.error(assetQuantityNotEnoughException.getMessage(), assetQuantityNotEnoughException);
-//
-//        // Return a message to the user
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Asset quantity" +
-//                "to sell is too big."));
-//    }
-    //@ExceptionHandler(MethodArgumentNotValidException.class)
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
+    }
+
+    @ExceptionHandler(AssetDeletionFailedException.class)
+    public ResponseEntity<Object> handleAssetDeletionFailedException(AssetDeletionFailedException exception){
+        // Log error to developers
+        logError(exception);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
+    }
+
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpHeaders headers,
                                                                   HttpStatusCode status, WebRequest request){
         // Log the detailed error message for developers
-        log.error(ex.getMessage(), ex);
-        log.error("WE ARE INSIDE THE HANDLEMETHODARGUMENTNOTVALID LMEOW");
-        BindingResult bindingResult = ex.getBindingResult();
+        log.error(exception.getMessage(), exception);
+        BindingResult bindingResult = exception.getBindingResult();
 
         Map<String, String> errors = bindingResult.getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField,
@@ -170,5 +189,17 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                         (oldValue, newValue) -> oldValue + "; " + newValue));
         return ResponseEntity.badRequest().body(errors);
         }
+
+    private Map<String, String> getErrors(BindingResultException exception){
+        return exception.getBindingResult().getFieldErrors().stream().
+                collect(Collectors.toMap(FieldError::getField,
+                        error -> Objects.toString(error.getDefaultMessage(), ""),
+                        (oldValue, newValue) -> oldValue + "; " + newValue));
+    }
+
+    private void logError(RuntimeException exception){
+        log.error(exception.getMessage(), exception);
+    }
+
     }
 

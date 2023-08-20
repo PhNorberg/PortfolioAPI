@@ -2,7 +2,7 @@ package com.philiphiliphilip.myportfolioapi.portfolio.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.philiphiliphilip.myportfolioapi.User.model.User;
+import com.philiphiliphilip.myportfolioapi.user.model.User;
 import com.philiphiliphilip.myportfolioapi.asset.model.Asset;
 import jakarta.persistence.*;
 
@@ -51,7 +51,7 @@ public class Portfolio {
     public Portfolio() {
     }
 
-    public void updateStatistics(Asset asset) {
+    public void updateStatistics() {
         updateTotalInvested();
         updateValueNow();
         updateProfitFactor();
@@ -59,6 +59,13 @@ public class Portfolio {
         updateNetProfitDollars();
     }
 
+    public void updatePartialStatistics(){
+        this.getAssets().stream().forEach(Asset::updatePartialStatistics);
+        updateValueNow();
+        updateProfitFactor();
+        updateGrossProfitDollars();
+        updateNetProfitDollars();
+    }
     private void updateTotalInvested(){
         this.totalInvested = this.assets.stream().map(Asset::getTotalInvested).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
     }
@@ -76,9 +83,11 @@ public class Portfolio {
     private void updateGrossProfitDollars(){
         this.grossProfitDollars = this.assets.stream().map(Asset::getGrossProfitDollars).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
     }
+
     private void updateNetProfitDollars(){
         this.netProfitDollars = this.assets.stream().map(Asset::getNetProfitDollars).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.DOWN);
     }
+
     public Integer getId() {
         return id;
     }

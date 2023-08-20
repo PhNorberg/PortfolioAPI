@@ -1,9 +1,11 @@
 package com.philiphiliphilip.myportfolioapi.authentication.service;
 
-import com.philiphiliphilip.myportfolioapi.User.request.UserLoginRequest;
-import com.philiphiliphilip.myportfolioapi.User.response.UserLoginResponse;
+import com.philiphiliphilip.myportfolioapi.user.request.UserLoginRequest;
+import com.philiphiliphilip.myportfolioapi.user.response.UserLoginResponse;
+import com.philiphiliphilip.myportfolioapi.formatter.NameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,19 +23,23 @@ public class JwtService {
     private final static Logger log = LoggerFactory.getLogger(JwtService.class);
     private AuthenticationManager authenticationManager;
     private JwtEncoder jwtEncoder;
-
+    private NameFormatter usernameFormatter;
 
     public JwtService(AuthenticationManager authenticationManager,
-                      JwtEncoder jwtEncoder) {
+                      JwtEncoder jwtEncoder,
+                      @Qualifier("usernameFormatter") NameFormatter usernameFormatter) {
         this.authenticationManager = authenticationManager;
         this.jwtEncoder = jwtEncoder;
+        this.usernameFormatter = usernameFormatter;
     }
 
     public UserLoginResponse login(UserLoginRequest userLoginRequest) {
 
+        // Format username
+        String capitalizedUsername = usernameFormatter.format(userLoginRequest.getUsername());
         // Create an authentication token
         Authentication authenticationToken =
-                new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(capitalizedUsername, userLoginRequest.getPassword());
 
         // Authenticate the user. This block of code will delegate the authentication process to one or more
         // AuthenticationProvider instances, which will use my own written CustomUserDetailsService to load the UserDetails
@@ -43,7 +49,7 @@ public class JwtService {
         // and granted authorities.
         Authentication authenticatedUser = authenticationManager.authenticate(authenticationToken);
         String token = createToken(authenticatedUser);
-        log.debug("User with username {} logged in successfully.", userLoginRequest.getUsername());
+        log.debug("User with username {} logged in successfully.", capitalizedUsername);
         return new UserLoginResponse(token);
     }
     

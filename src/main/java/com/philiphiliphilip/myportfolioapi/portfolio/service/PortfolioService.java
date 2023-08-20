@@ -1,8 +1,8 @@
 package com.philiphiliphilip.myportfolioapi.portfolio.service;
 
-import com.philiphiliphilip.myportfolioapi.User.model.User;
+import com.philiphiliphilip.myportfolioapi.user.model.User;
 import com.philiphiliphilip.myportfolioapi.exception.*;
-import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
+import com.philiphiliphilip.myportfolioapi.user.repository.UserRepository;
 import com.philiphiliphilip.myportfolioapi.portfolio.converter.PortfolioConverter;
 import com.philiphiliphilip.myportfolioapi.portfolio.dto.PortfolioDTO;
 import com.philiphiliphilip.myportfolioapi.portfolio.dto.PortfolioDTOUsernameLevel;
@@ -11,8 +11,7 @@ import com.philiphiliphilip.myportfolioapi.portfolio.repository.PortfolioReposit
 import com.philiphiliphilip.myportfolioapi.portfolio.request.PortfolioCreationRequest;
 import com.philiphiliphilip.myportfolioapi.portfolio.response.PortfolioCreationResponse;
 import com.philiphiliphilip.myportfolioapi.portfolio.response.PortfolioDeletionResponse;
-import com.philiphiliphilip.myportfolioapi.utility.NameFormatter;
-//import jakarta.transaction.Transactional;
+import com.philiphiliphilip.myportfolioapi.formatter.NameFormatter;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PortfolioService {
@@ -44,7 +44,7 @@ public class PortfolioService {
         this.portfolionameFormatter = portfolionameFormatter;
     }
 
-    public List<PortfolioDTOUsernameLevel> getAllPortfolios(String username){
+    public List<PortfolioDTOUsernameLevel> getUsersPortfolios(String username){
 
         // Format username input. Get calling user and log the GET attempt
         String capitalizedUsername = usernameFormatter.format(username);
@@ -52,20 +52,28 @@ public class PortfolioService {
         String callerUsername = authentication.getName();
         log.debug("{} attempting to get all portfolios of user {}.", callerUsername, capitalizedUsername);
 
-        // Check that username is legit
+        // Check that user with the username exists
         Optional<User> user = userRepository.findByUsername(capitalizedUsername);
         if (user.isEmpty()){
             throw new UserNotFoundException(capitalizedUsername);
         }
 
-        // Fetch list of users portfolios
-        List<PortfolioDTOUsernameLevel> portfolios = user.get().getPortfolio().stream().map(portfolio ->
-                new PortfolioDTOUsernameLevel(portfolio.getName(), portfolio.getValueNow())).toList();
+        // Fetch list of users portfolios with updated real-time statistics
+        List<Portfolio> portfolios = user.get().getPortfolio().stream().
+                peek(Portfolio::updatePartialStatistics).toList();
+
+        // Turn into DTO's
+        List<PortfolioDTOUsernameLevel> portfolioDtos = portfolios.stream()
+                .map(portfolio -> portfolioConverter.convertToUsernameLevel(portfolio)).toList();
+
+        // Save updated portfolios to database
+        portfolioRepository.saveAll(portfolios);
 
         // Log successful attempt.
         log.debug("{} attempt to get all portfolios of user {} succeeded.", callerUsername, capitalizedUsername);
 
-        return portfolios;
+        // Return DTO's to user
+        return portfolioDtos;
     }
 
     /**
@@ -90,16 +98,31 @@ public class PortfolioService {
         // Check if the user is calling his own portfolio or some others,
         boolean isSame = callerUsername.equals(capitalizedUsername);
 
-        // Return proper portfolio or an exception if portfolio not found.
-        PortfolioDTO portfolio = user.get().getPortfolio().stream().filter(p -> p.getName().equals(capitalizedPortfolioname))
-                .findFirst().map(p -> isSame ? portfolioConverter.convertToPortfolionameLevelSelf(p) :
-                        portfolioConverter.convertToPortfolionameLevelOther(p))
-                .orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
+        // Check if user owns portfolio
+        Optional<Portfolio> portfolioOpt = user.get().getPortfolio().stream()
+                .filter(p -> p.getName().equals(capitalizedPortfolioname)).findFirst();
 
+        // If not, throw exception
+        if (portfolioOpt.isEmpty()){
+            throw new PortfolioNotFoundException(capitalizedPortfolioname);
+        }
+
+        // Update portfolio with real-time statistics and save to database
+        Portfolio portfolio = portfolioOpt.get();
+        portfolio.updatePartialStatistics();
+        portfolioRepository.save(portfolio);
+
+        // Convert into correct DTO type based on if user is calling his own portfolio or someone elses
+        PortfolioDTO portfolioDTO = isSame ?
+                portfolioConverter.convertToPortfolionameLevelSelf(portfolio) :
+                portfolioConverter.convertToPortfolionameLevelOther(portfolio);
+
+        // Log success
         log.debug("{} attempt to get portfolio {} of user {} succeeded", callerUsername,capitalizedPortfolioname,capitalizedUsername);
 
-        return portfolio;
+        return portfolioDTO;
     }
+
     @Transactional
     public PortfolioCreationResponse createPortfolio(PortfolioCreationRequest creationRequest, String username){
 
@@ -175,6 +198,5 @@ public class PortfolioService {
         // Log if successful and return response
         log.debug("{} attempt to delete portfolio {} was successful.", capitalizedUsername, capitalizedPortfolioname);
         return new PortfolioDeletionResponse(capitalizedPortfolioname);
-
     }
 }

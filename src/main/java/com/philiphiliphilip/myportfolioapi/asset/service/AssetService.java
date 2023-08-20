@@ -1,6 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.asset.service;
 
-import com.philiphiliphilip.myportfolioapi.User.model.User;
+import com.philiphiliphilip.myportfolioapi.user.model.User;
 import com.philiphiliphilip.myportfolioapi.asset.dto.AssetDTO;
 import com.philiphiliphilip.myportfolioapi.asset.model.Asset;
 import com.philiphiliphilip.myportfolioapi.asset.repository.AssetRepository;
@@ -8,11 +8,11 @@ import com.philiphiliphilip.myportfolioapi.asset.request.AssetCreationRequest;
 import com.philiphiliphilip.myportfolioapi.asset.response.AssetCreationResponse;
 import com.philiphiliphilip.myportfolioapi.asset.response.AssetDeletionResponse;
 import com.philiphiliphilip.myportfolioapi.exception.*;
-import com.philiphiliphilip.myportfolioapi.User.repository.UserRepository;
+import com.philiphiliphilip.myportfolioapi.user.repository.UserRepository;
 import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
 import com.philiphiliphilip.myportfolioapi.portfolio.repository.PortfolioRepository;
-import com.philiphiliphilip.myportfolioapi.transaction.TransactionRepository;
-import com.philiphiliphilip.myportfolioapi.utility.NameFormatter;
+import com.philiphiliphilip.myportfolioapi.transaction.repository.TransactionRepository;
+import com.philiphiliphilip.myportfolioapi.formatter.NameFormatter;
 //import jakarta.transaction.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
@@ -48,25 +48,25 @@ public class AssetService {
         this.tickersymbolFormatter = tickersymbolFormatter;
     }
 
-    private AssetDTO assetConverter(Asset asset){
-        AssetDTO assetDTO = new AssetDTO();
-
-        assetDTO.setId(asset.getId());
-        assetDTO.setTickerSymbol(asset.getTickerSymbol());
-        assetDTO.setQuantity(asset.getQuantity());
-        assetDTO.setPurchasePrice(asset.getPurchasePrice());
-        assetDTO.setCurrentPrice(asset.getCurrentPrice());
-        assetDTO.setTotalInvested(asset.getTotalInvested());
-        assetDTO.setValueNow(asset.getValueNow());
-        assetDTO.setProfitFactor(asset.getProfitFactor());
-        assetDTO.setGrossProfitDollars(asset.getGrossProfitDollars());
-        assetDTO.setNetProfitDollars(asset.getNetProfitDollars());
-        assetDTO.setTaxRate(asset.getTaxRate());
-        assetDTO.setPortfolio(asset.getPortfolio().getName());
-        assetDTO.setTransactions(asset.getTransactions());
-
-        return assetDTO;
-    }
+//    private AssetDTO assetConverter(Asset asset){
+//        AssetDTO assetDTO = new AssetDTO();
+//
+//        assetDTO.setId(asset.getId());
+//        assetDTO.setTickerSymbol(asset.getTickerSymbol());
+//        assetDTO.setQuantity(asset.getQuantity());
+//        assetDTO.setPurchasePrice(asset.getPurchasePrice());
+//        assetDTO.setCurrentPrice(asset.getCurrentPrice());
+//        assetDTO.setTotalInvested(asset.getTotalInvested());
+//        assetDTO.setValueNow(asset.getValueNow());
+//        assetDTO.setProfitFactor(asset.getProfitFactor());
+//        assetDTO.setGrossProfitDollars(asset.getGrossProfitDollars());
+//        assetDTO.setNetProfitDollars(asset.getNetProfitDollars());
+//        assetDTO.setTaxRate(asset.getTaxRate());
+//        assetDTO.setPortfolio(asset.getPortfolio().getName());
+//        assetDTO.setTransactions(asset.getTransactions());
+//
+//        return assetDTO;
+//    }
     /*
     To be implemented.
      */
@@ -95,8 +95,9 @@ public class AssetService {
         // Format username and portfolioname input.
         String capitalizedUsername = usernameFormatter.format(username);
         String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
+        String uppercaseTickersymbol = tickersymbolFormatter.format(assetCreationRequest.getTickerSymbol());
         log.debug("{} attempting to create asset {} in portfolio {}.", capitalizedUsername,
-                assetCreationRequest.getTickerSymbol(), capitalizedPortfolioname);
+                uppercaseTickersymbol, capitalizedPortfolioname);
 
 
         // Check if portfolio actually belongs to user. Throw exception if not.
@@ -104,24 +105,23 @@ public class AssetService {
         Portfolio portfolio = user.get().getPortfolio().stream().filter(p -> p.getName().equals(capitalizedPortfolioname))
                 .findFirst().orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
 
-        // Make sure that asset with tickersymbol isnt already in the portfolio. If so, throw exception saying
-        // that it does. Also tell the user if he wishes to add to his position, go to /transactions
-        String uppercaseTickersymbol = tickersymbolFormatter.format(assetCreationRequest.getTickerSymbol());
-        boolean assetExists = portfolio.getAssets().stream().anyMatch(asset -> asset.getTickerSymbol().equals(uppercaseTickersymbol));
+        // Make sure that asset with tickersymbol isnt already in the portfolio.
+        boolean assetExists = portfolio.getAssets().stream()
+                .anyMatch(asset -> asset.getTickerSymbol().equals(uppercaseTickersymbol));
         if (assetExists){
             throw new AssetAlreadyExistsException(uppercaseTickersymbol);
         }
 
-        // Create the asset and add it to the users portfolio and then save the portfolio (cascading takes care of the saves)
+        // Create the asset and add it to the users portfolio and then save changes to database.
         Asset asset = new Asset(uppercaseTickersymbol, assetCreationRequest.getAssetType(),
                 assetCreationRequest.getTaxRate());
         asset.setPortfolio(portfolio);
-        //assetRepository.save(asset);
-        // Add the asset to the users portfolio and save portfoliorepo
+
+        // Add the asset to the users portfolio and save to database
         portfolio.getAssets().add(asset);
         portfolioRepository.save(portfolio);
 
-        // return assetcreationresponse
+        // Log and return asset creation response
         log.debug("{} attempt to create asset {} in portfolio {} succeeded.", capitalizedUsername,
                 uppercaseTickersymbol, capitalizedPortfolioname);
         return new AssetCreationResponse(uppercaseTickersymbol);
@@ -133,7 +133,8 @@ public class AssetService {
         String capitalizedUsername = usernameFormatter.format(username);
         String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
         String uppercaseTickersymbol = tickersymbolFormatter.format(tickersymbol);
-
+        log.debug("{} attempting to delete asset {} in portfolio {}.", capitalizedUsername,
+                uppercaseTickersymbol, capitalizedPortfolioname);
         // Fetch user object
         Optional<User> user = userRepository.findByUsername(capitalizedUsername);
 
@@ -153,9 +154,6 @@ public class AssetService {
         portfolio.getAssets().remove(asset);
         assetRepository.delete(asset);
 
-        // Save user
-        userRepository.save(user.get());
-
         // Verify asset was deleted
         Optional<Asset> deletedAsset = assetRepository.findById(asset.getId());
         if (deletedAsset.isPresent()){
@@ -163,6 +161,14 @@ public class AssetService {
         }
 
         // Else successful
-        return new AssetDeletionResponse(tickersymbol);
+        // Update portfolio statistics
+        portfolio.updateStatistics();
+
+        // Log success and save portfolio before returning asset deletion response
+        portfolioRepository.save(portfolio);
+        log.debug("{} attempt to delete asset {} in portfolio {} succeeded.", capitalizedUsername,
+                uppercaseTickersymbol, capitalizedPortfolioname);
+
+        return new AssetDeletionResponse(uppercaseTickersymbol);
     }
 }

@@ -2,13 +2,14 @@ package com.philiphiliphilip.myportfolioapi.exception;
 
 public class PortfolioNameAlreadyExistsException extends RuntimeException {
 
-    private String name;
+    private String toUser;
+
     public PortfolioNameAlreadyExistsException(String name) {
         super("Portfolio creation failed. Portfolio with name \"" + name + "\" already exists for this user.");
-        this.name = name;
+        this.toUser = "Portfolio creation failed. You already have a portfolio with the name \"" + name +"\"";
     }
 
-    public String getName() {
-        return name;
+    public String getToUser() {
+        return toUser;
     }
 }

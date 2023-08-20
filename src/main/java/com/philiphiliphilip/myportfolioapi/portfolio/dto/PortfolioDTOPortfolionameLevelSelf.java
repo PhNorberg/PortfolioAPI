@@ -15,6 +15,9 @@ public class PortfolioDTOPortfolionameLevelSelf implements PortfolioDTO {
     private BigDecimal netProfitDollars;
     private List<AssetDTOPortfolionameLevelSelf> assets;
 
+    public PortfolioDTOPortfolionameLevelSelf() {
+    }
+
     public String getName() {
         return name;
     }

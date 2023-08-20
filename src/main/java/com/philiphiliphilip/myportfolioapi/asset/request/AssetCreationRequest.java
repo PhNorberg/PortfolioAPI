@@ -16,7 +16,6 @@ public class AssetCreationRequest {
     @DecimalMin(value = "0.0", message = "Tax rate should be non-negative.")
     private BigDecimal taxRate;
 
-
     public String getTickerSymbol() {
         return tickerSymbol;
     }

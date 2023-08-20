@@ -14,12 +14,6 @@ public class PortfolioDTOPortfolionameLevelOther implements PortfolioDTO {
     private BigDecimal grossProfitDollars;
     private List<AssetDTOPortfolionameLevelOther> assets;
 
-    public PortfolioDTOPortfolionameLevelOther(String name, BigDecimal valueNow, List<AssetDTOPortfolionameLevelOther> assets) {
-        this.name = name;
-        this.valueNow = valueNow;
-        this.assets = assets;
-    }
-
     public PortfolioDTOPortfolionameLevelOther(){}
 
     public String getName() {

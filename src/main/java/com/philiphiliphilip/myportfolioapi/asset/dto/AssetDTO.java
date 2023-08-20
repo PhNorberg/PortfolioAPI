@@ -1,6 +1,6 @@
 package com.philiphiliphilip.myportfolioapi.asset.dto;
 
-import com.philiphiliphilip.myportfolioapi.transaction.Transaction;
+import com.philiphiliphilip.myportfolioapi.transaction.model.Transaction;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,24 +20,6 @@ public class AssetDTO {
     private BigDecimal taxRate;
     private String portfolio;
     private List<Transaction> transactions;
-
-    public AssetDTO(Integer id, String tickerSymbol, BigDecimal quantity, BigDecimal purchasePrice, BigDecimal currentPrice,
-                    BigDecimal totalInvested, BigDecimal valueNow, BigDecimal profitFactor, BigDecimal grossProfitDollars, BigDecimal netProfitDollars,
-                    BigDecimal taxRate, String portfolio, List<Transaction> transactions) {
-        this.id = id;
-        this.tickerSymbol = tickerSymbol;
-        this.quantity = quantity;
-        this.purchasePrice = purchasePrice;
-        this.currentPrice = currentPrice;
-        this.profitFactor = profitFactor;
-        this.totalInvested = totalInvested;
-        this.valueNow = valueNow;
-        this.grossProfitDollars = grossProfitDollars;
-        this.netProfitDollars = netProfitDollars;
-        this.taxRate = taxRate;
-        this.portfolio = portfolio;
-        this.transactions = transactions;
-    }
 
     public AssetDTO() {
     }
