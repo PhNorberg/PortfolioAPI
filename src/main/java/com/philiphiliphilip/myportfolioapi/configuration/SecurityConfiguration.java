@@ -34,10 +34,12 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfiguration {
+
     @Bean
     public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
