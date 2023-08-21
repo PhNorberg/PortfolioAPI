@@ -23,6 +23,10 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.*;
 
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "tickerSymbol"
@@ -152,23 +156,51 @@ public class Asset {
 
     private String readAPIKey(){
 
+        // Code from amazon
+        String secretName = "twelvedata-API-key";
+        Region region = Region.of("eu-north-1");
+
+        // Create a Secrets Manager client
+        SecretsManagerClient client = SecretsManagerClient.builder()
+                .region(region)
+                .build();
+
+        GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder()
+                .secretId(secretName)
+                .build();
+
+        GetSecretValueResponse getSecretValueResponse;
+
         try {
-            Properties prop = new Properties();
-            FileInputStream input = new FileInputStream("src/main/resources/secrets.properties");
-            prop.load(input);
-            return prop.getProperty("TWELVEDATA_API_KEY");
+            getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
+        } catch (Exception e) {
+            // For a list of exceptions thrown, see
+            // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+            throw e;
         }
-        catch (FileNotFoundException e) {
-            // Could log exceptions aswell
-            System.err.println("File not found " + e.getMessage());
-            return "";
-        }
-        catch (IOException e) {
-            // Could log exceptions aswell
-            System.err.println("Error reading file " + e.getMessage());
-            return "";
-        }
+
+        String secret = getSecretValueResponse.secretString();
+        return secret;
     }
+//    private String readAPIKey(){
+//
+//        try {
+//            Properties prop = new Properties();
+//            FileInputStream input = new FileInputStream("src/main/resources/secrets.properties");
+//            prop.load(input);
+//            return prop.getProperty("TWELVEDATA_API_KEY");
+//        }
+//        catch (FileNotFoundException e) {
+//            // Could log exceptions aswell
+//            System.err.println("File not found " + e.getMessage());
+//            return "";
+//        }
+//        catch (IOException e) {
+//            // Could log exceptions aswell
+//            System.err.println("Error reading file " + e.getMessage());
+//            return "";
+//        }
+//    }
 
     private BigDecimal callTwelveDataAPI(String requestURL) throws IOException, ParseException {
         // This call fetches last closing price of given Asset.
