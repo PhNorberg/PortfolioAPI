@@ -44,6 +44,7 @@ public class SecurityConfiguration {
                 // csrf shouldnt perhaps be disabled in prod
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/auth/register").permitAll()
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/javainuse-openapi/**", "/v3/api-docs/**").permitAll()
                         // Disable this in prod.
@@ -54,9 +55,9 @@ public class SecurityConfiguration {
                 //.httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy((SessionCreationPolicy.STATELESS)))
                 // Jwt
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
                 // perhaps shouldnt be disabled in prod
-                .headers().frameOptions().disable();
+                //.headers().frameOptions().disable();
 
         return http.build();
     }
