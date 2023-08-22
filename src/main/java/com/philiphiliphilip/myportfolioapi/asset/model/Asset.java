@@ -2,6 +2,7 @@ package com.philiphiliphilip.myportfolioapi.asset.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.philiphiliphilip.myportfolioapi.exception.EmptyApiKeySetException;
 import com.philiphiliphilip.myportfolioapi.portfolio.model.Portfolio;
 import com.philiphiliphilip.myportfolioapi.transaction.model.Transaction;
 import jakarta.persistence.*;
@@ -12,8 +13,6 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +26,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "tickerSymbol"
@@ -74,11 +74,9 @@ public class Asset {
 
     public void updateStatistics(Transaction transaction) {
         updateQuantity();
-        if (transaction.getTransactionType().equals("buy"))
-            updatePurchasePrice();
+        updatePurchasePrice(transaction);
         updateTotalInvested();
-        if (transaction.getTransactionType().equals("buy"))
-            updateProfitFactor();
+        updateProfitFactor(transaction);
         updateValueNow();
         updateGrossProfitDollars();
         updateNetProfitDollars();
@@ -97,54 +95,107 @@ public class Asset {
                 transaction.getQuantity() : transaction.getQuantity().negate()).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private void updatePurchasePrice() {
+    private void updatePurchasePrice(Transaction transaction) {
 
-        // Move backwards through transaction list, looking only at the transactions that have gotten us to this
-        // current quantity.
-        BigDecimal quantity = this.quantity;
-        BigDecimal totalSpent = BigDecimal.ZERO;
-        BigDecimal buyQuantity = BigDecimal.ZERO;
+        // If a sell event brought down holdings to 0.
+        if (quantity.compareTo(BigDecimal.ZERO) == 0){
+            this.purchasePrice = BigDecimal.ZERO;
+        } else if(transaction.getTransactionType().equals("sell")){
+            // Do nothing if transaction type is of sell and didn't bring holdings to 0.
+            // This doesn't impact purchase price.
+        } else {
+            // Move backwards through transaction list, looking only at the transactions that have gotten us to this
+            // current quantity.
+            BigDecimal quantity = this.quantity;
+            BigDecimal totalSpent = BigDecimal.ZERO;
+            BigDecimal buyQuantity = BigDecimal.ZERO;
 
-        List<Transaction> reverseTransactions = new ArrayList<>(this.transactions);
-        Collections.reverse(reverseTransactions);
-        for (Transaction transaction : reverseTransactions) {
-            if (transaction.getTransactionType().equals("buy")) {
-                buyQuantity = buyQuantity.add(transaction.getQuantity());
-                if (buyQuantity.compareTo(quantity) == 0) {
-                    totalSpent = totalSpent.add(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
-                    break;
+            List<Transaction> reverseTransactions = new ArrayList<>(this.transactions);
+            Collections.reverse(reverseTransactions);
+            for (Transaction reverseTransaction : reverseTransactions) {
+                if (reverseTransaction.getTransactionType().equals("buy")) {
+                    buyQuantity = buyQuantity.add(reverseTransaction.getQuantity());
+                    if (buyQuantity.compareTo(quantity) == 0) {
+                        totalSpent = totalSpent.add(reverseTransaction.getQuantity().multiply(reverseTransaction
+                                .getPurchasePrice()));
+                        break;
+                    } else {
+                        totalSpent = totalSpent.add(reverseTransaction.getQuantity()
+                                .multiply(reverseTransaction.getPurchasePrice()));
+                    }
                 } else {
-                    totalSpent = totalSpent.add(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
+                    buyQuantity = buyQuantity.subtract(reverseTransaction.getQuantity());
+                    totalSpent = totalSpent.subtract(reverseTransaction.getQuantity()
+                            .multiply(reverseTransaction.getPurchasePrice()));
                 }
-            } else {
-                buyQuantity = buyQuantity.subtract(transaction.getQuantity());
-                totalSpent = totalSpent.subtract(transaction.getQuantity().multiply(transaction.getPurchasePrice()));
             }
+            this.purchasePrice = totalSpent.divide(this.quantity, 10, RoundingMode.DOWN)
+                    .setScale(2, RoundingMode.DOWN);
         }
-        this.purchasePrice = totalSpent.divide(this.quantity, 10, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN);
     }
 
     private void updateTotalInvested(){
         this.totalInvested = this.quantity.multiply(this.purchasePrice).setScale(2, RoundingMode.DOWN);
     }
 
-    private void updateProfitFactor() {
-        String url = createRequestURL();
+    /*
+    Updating of profit factor from an asset point of view when a transaction happened.
+     */
+    private void updateProfitFactor(Transaction transaction) {
 
-        try{
-            BigDecimal closeValue = callTwelveDataAPI(url);
-            this.currentPrice = closeValue.setScale(2, RoundingMode.DOWN);
-            this.profitFactor = closeValue.divide(purchasePrice, 10, RoundingMode.DOWN);
-        } catch (MalformedURLException e) {
-            System.err.println("Malformed URL " + e.getMessage());
-        } catch (ProtocolException e) {
-            System.err.println("Protocol error " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("Error reading file " + e.getMessage());
-        } catch (ParseException e) {
-            System.err.println("Error while parsing " + e.getMessage());
+        // If a sell event brought down holdings to 0.
+        if (quantity.compareTo(BigDecimal.ZERO) == 0){
+            this.purchasePrice = BigDecimal.ZERO;
+        } else if(transaction.getTransactionType().equals("sell")) {
+            // Do nothing if transaction type is of sell and didn't bring holdings to 0.
+            // This doesn't impact purchase price.
         }
+            else {
+                String url = createRequestURL();
+
+                try {
+                    BigDecimal closeValue = callTwelveDataAPI(url);
+                    this.currentPrice = closeValue.setScale(2, RoundingMode.DOWN);
+                    this.profitFactor = closeValue.divide(purchasePrice, 10, RoundingMode.DOWN);
+                } catch (MalformedURLException e) {
+                    System.err.println("Malformed URL " + e.getMessage());
+                } catch (ProtocolException e) {
+                    System.err.println("Protocol error " + e.getMessage());
+                } catch (IOException e) {
+                    System.err.println("Error reading file " + e.getMessage());
+                } catch (ParseException e) {
+                    System.err.println("Error while parsing " + e.getMessage());
+                }
+            }
     }
+
+    /*
+    Updating of profit factor from a portfolio point of view.
+     */
+    private void updateProfitFactor() {
+
+        if (quantity.compareTo(BigDecimal.ZERO) == 0) {
+            this.profitFactor = BigDecimal.ZERO;
+        }
+        else {
+            // Fetch current price and update profit factor without relying on any transaction
+            String url = createRequestURL();
+
+            try {
+                BigDecimal closeValue = callTwelveDataAPI(url);
+                this.currentPrice = closeValue.setScale(2, RoundingMode.DOWN);
+                this.profitFactor = closeValue.divide(purchasePrice, 10, RoundingMode.DOWN);
+            } catch (MalformedURLException e) {
+                System.err.println("Malformed URL " + e.getMessage());
+            } catch (ProtocolException e) {
+                System.err.println("Protocol error " + e.getMessage());
+            } catch (IOException e) {
+                System.err.println("Error reading file " + e.getMessage());
+            } catch (ParseException e) {
+                System.err.println("Error while parsing " + e.getMessage());
+            }
+        }
+        }
 
     private String createRequestURL(){
         String apiKey = readAPIKey();
@@ -179,28 +230,21 @@ public class Asset {
             throw e;
         }
 
+
+        // Returns {"TWELVEDATA_API_KEY" : "key value"}
         String secret = getSecretValueResponse.secretString();
-        return secret;
+
+        // Parse the JSON string and extract the API Key
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject json = (JSONObject) parser.parse(secret);
+            String apiKey = (String) json.get("TWELVEDATA_API_KEY");
+            return apiKey;
+        } catch (ParseException e) {
+            throw new EmptyApiKeySetException();
+        }
+
     }
-//    private String readAPIKey(){
-//
-//        try {
-//            Properties prop = new Properties();
-//            FileInputStream input = new FileInputStream("src/main/resources/secrets.properties");
-//            prop.load(input);
-//            return prop.getProperty("TWELVEDATA_API_KEY");
-//        }
-//        catch (FileNotFoundException e) {
-//            // Could log exceptions aswell
-//            System.err.println("File not found " + e.getMessage());
-//            return "";
-//        }
-//        catch (IOException e) {
-//            // Could log exceptions aswell
-//            System.err.println("Error reading file " + e.getMessage());
-//            return "";
-//        }
-//    }
 
     private BigDecimal callTwelveDataAPI(String requestURL) throws IOException, ParseException {
         // This call fetches last closing price of given Asset.
@@ -224,6 +268,7 @@ public class Asset {
             }
 
             JSONObject json = (JSONObject) parser.parse(responseData.toString());
+
             // To do: Check for "status" code "error" or "ok" which tells you if its a valid API call or not.
             JSONObject meta = (JSONObject) json.get("meta");
             JSONArray values = (JSONArray) json.get("values");
@@ -244,7 +289,6 @@ public class Asset {
 
     private void updateNetProfitDollars() {
 
-        // Here it crashes when user tries to sell some asset he has 0 quantity of
         BigDecimal taxRateDecimal = this.taxRate.divide(new BigDecimal(100), RoundingMode.DOWN);
         BigDecimal taxAmount = this.grossProfitDollars.multiply(taxRateDecimal);
         this.netProfitDollars = this.grossProfitDollars.subtract(taxAmount);

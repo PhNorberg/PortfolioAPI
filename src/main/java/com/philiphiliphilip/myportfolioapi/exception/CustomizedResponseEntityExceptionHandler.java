@@ -175,6 +175,15 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
     }
 
+    @ExceptionHandler(EmptyApiKeySetException.class)
+    public ResponseEntity<Object> handleEmptyApiKeySetException(EmptyApiKeySetException exception){
+        // Log error to developers
+        logError(exception);
+
+        // Return a message to the user
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpHeaders headers,
                                                                   HttpStatusCode status, WebRequest request){
