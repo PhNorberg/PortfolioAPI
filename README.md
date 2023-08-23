@@ -12,12 +12,14 @@ Head over to http://portfolioapi-prod.eba-fapp3vct.eu-north-1.elasticbeanstalk.c
 
 ### Register
 
-<img width="1026" alt="Screenshot 2023-08-22 at 14 32 10" src="https://github.com/PhNorberg/PortfolioAPI/assets/94229361/a637e846-f026-4104-baf1-a7def61b7d2a">
+<img width="1026" alt="Screenshot 2023-08-22 at 14 32 10" src="https://github.com/PhNorberg/PortfolioAPI/assets/94229361/1f1794ce-4f10-44aa-89f8-08481d1e3a78">
 
 When you've clicked the link, you're met with this UI. This is Swagger UI, which lets you fire requests to all the available endpoints for the API.
 To register, click on the `POST /auth/register` endpoint.
 
-<img width="1008" alt="Screenshot 2023-08-22 at 14 40 10" src="https://github.com/PhNorberg/PortfolioAPI/assets/94229361/d55888ee-fff8-4e2f-bb68-123e53abfa87">
+
+
+<img width="1008" alt="Screenshot 2023-08-22 at 14 40 10" src="https://github.com/PhNorberg/PortfolioAPI/assets/94229361/b227db74-8a90-4b19-8da0-c5514c91fcbc">
 
 When you've clicked, the endpoint information box is expanded and you're met with the next view.
 This is where you fire your requests. Before firing, this view gives you information about what the endpoint wants and what it will give you.
