@@ -70,7 +70,7 @@ Following text will explain the various endpoints that you can navigate through 
 
 ## Endpoints
 
-### portfolio-controller
+### portfolio-controller (Authentication required)
 
 | METHOD| ENDPOINT| DESCRIPTION                |
 |-------|--------|----------------------------|
@@ -79,13 +79,13 @@ Following text will explain the various endpoints that you can navigate through 
 | `GET`      | `users/{username}/portfolios/{portfolioname}` | Gets a detailed view of a specific portfolio owned by a user   |
 | `DELETE` |`users/{username}/portfolios/{portfolioname}` | Deletes a specific portfolio that you own |
 
-### transaction-controller
+### transaction-controller (Authentication required)
 
 | METHOD| ENDPOINT | DESCRIPTION                |
 |-------|--------|----------------------------|
 |`POST` | `users/{username}/portfolios/{portfolioname}/{tickersymbol}/transactions` | Creates a transaction for the specific asset you own |
 
-### asset-controller
+### asset-controller (Authentication required)
 
 | METHOD| ENDPOINT| DESCRIPTION      |
 |-------|--------|----------------------------|
@@ -99,7 +99,7 @@ Following text will explain the various endpoints that you can navigate through 
 | `POST` | `/auth/register` | Registers a new user to the service |
 | `POST` | `/auth/login` | Where a user logs in to the service |
 
-## user-controller
+## user-controller (Authentication required)
 
 | METHOD| ENDPOINT| DESCRIPTION      |
 |-------|--------|----------------------------|
