@@ -105,5 +105,6 @@ Following text will explain the various endpoints that you can navigate through 
 |-------|--------|----------------------------|
 | `GET` | `/users` | Gets a list of all users and the names of their portfolios |
 | `GET` | `/users/{username}` | Gets user info and a list of all portfolios owned by a specific user, showing only portfolio name and total value |
+| `DELETE`| `/users/{username}` | Deletes your user from the application |
 
 
