@@ -66,9 +66,10 @@ The token expires after 1 hour, so remember to log in and provide the response t
 
 Now you've made your first portfolio that you can track!
 
-Following text will explain the various endpoints that you can navigate through the API.
 
 ## Endpoints
+
+Following text will explain the various endpoints that you can navigate through the API. Note that this is still a work in progress and more endpoints and functionality will pop up over time. Stay tuned:)
 
 ### portfolio-controller (Authentication required)
 
