@@ -43,23 +43,16 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
-                // csrf shouldnt perhaps be disabled in prod
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/javainuse-openapi/**", "/v3/api-docs/**").permitAll()
-                        // Disable this in prod.
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        //.requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                         .anyRequest().authenticated())
-                // Commented out to ensure that server doesnt accept basic username-password credentials for requests
-                // after login
-                //.httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy((SessionCreationPolicy.STATELESS)))
-                // Jwt
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
-                // perhaps shouldnt be disabled in prod
-                //.headers().frameOptions().disable();
+
 
         return http.build();
     }

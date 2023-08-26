@@ -30,31 +30,30 @@ public class AuthenticationController {
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest, BindingResult bindingResult){
+    public ResponseEntity<UserRegistrationResponse> register(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest,
+                                                             BindingResult bindingResult){
 
-        // Log user attempt to register
         logUserAction("register", userRegistrationRequest.getUsername());
 
-        // Check if valid registration request
         if(bindingResult.hasErrors()){
             throw new InvalidRegistrationFormException(bindingResult);
         }
-        // Else go to service layer
+
         UserRegistrationResponse userRegistrationResponse = authService.register(userRegistrationRequest, bindingResult);
         return ResponseEntity.ok(userRegistrationResponse);
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest, BindingResult bindingResult){
+    public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest,
+                                                   BindingResult bindingResult){
 
-        // Log user attempt to login
+
         logUserAction("login", userLoginRequest.getUsername());
 
-        // Check if valid login request
         if(bindingResult.hasErrors()){
             throw new InvalidLoginFormException(bindingResult);
         }
-        // Else go to service layer
+
         UserLoginResponse userLoginResponse = jwtService.login(userLoginRequest);
         return ResponseEntity.ok(userLoginResponse);
     }

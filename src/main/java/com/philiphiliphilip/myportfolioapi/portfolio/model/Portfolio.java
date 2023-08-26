@@ -30,7 +30,6 @@ public class Portfolio {
     private BigDecimal profitFactor;
     private BigDecimal grossProfitDollars;
     private BigDecimal netProfitDollars;
-    // CascadeType.REMOVE to delete all assets in the portfolio when a portfolio is deleted
     @OneToMany(mappedBy = "portfolio", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
     private List<Asset> assets;
     @ManyToOne

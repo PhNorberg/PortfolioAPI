@@ -91,8 +91,6 @@ public class AssetService {
     public AssetCreationResponse createAsset(AssetCreationRequest assetCreationRequest, String username,
                                              String portfolioname) {
 
-        // Log attempt of creating asset X to portfolio Y.
-        // Format username and portfolioname input.
         String capitalizedUsername = usernameFormatter.format(username);
         String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
         String uppercaseTickersymbol = tickersymbolFormatter.format(assetCreationRequest.getTickerSymbol());
@@ -100,28 +98,23 @@ public class AssetService {
                 uppercaseTickersymbol, capitalizedPortfolioname);
 
 
-        // Check if portfolio actually belongs to user. Throw exception if not.
         Optional<User> user = userRepository.findByUsername(capitalizedUsername);
         Portfolio portfolio = user.get().getPortfolio().stream().filter(p -> p.getName().equals(capitalizedPortfolioname))
                 .findFirst().orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
 
-        // Make sure that asset with tickersymbol isnt already in the portfolio.
         boolean assetExists = portfolio.getAssets().stream()
                 .anyMatch(asset -> asset.getTickerSymbol().equals(uppercaseTickersymbol));
         if (assetExists){
             throw new AssetAlreadyExistsException(uppercaseTickersymbol);
         }
 
-        // Create the asset and add it to the users portfolio and then save changes to database.
         Asset asset = new Asset(uppercaseTickersymbol, assetCreationRequest.getAssetType(),
                 assetCreationRequest.getTaxRate());
         asset.setPortfolio(portfolio);
 
-        // Add the asset to the users portfolio and save to database
         portfolio.getAssets().add(asset);
         portfolioRepository.save(portfolio);
 
-        // Log and return asset creation response
         log.debug("{} attempt to create asset {} in portfolio {} succeeded.", capitalizedUsername,
                 uppercaseTickersymbol, capitalizedPortfolioname);
         return new AssetCreationResponse(uppercaseTickersymbol);
@@ -129,42 +122,29 @@ public class AssetService {
 
     public AssetDeletionResponse deleteAsset(String username, String portfolioname, String tickersymbol) {
 
-        // We know user is username. We dont know if portfolioname is correct, nor assetname (or that he owns them).
         String capitalizedUsername = usernameFormatter.format(username);
         String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
         String uppercaseTickersymbol = tickersymbolFormatter.format(tickersymbol);
         log.debug("{} attempting to delete asset {} in portfolio {}.", capitalizedUsername,
                 uppercaseTickersymbol, capitalizedPortfolioname);
-        // Fetch user object
+
         Optional<User> user = userRepository.findByUsername(capitalizedUsername);
 
-        // Fetch portfolio if it belongs to user
         Portfolio portfolio = user.get().getPortfolio().stream()
                 .filter(p -> p.getName().equals(capitalizedPortfolioname))
                 .findFirst()
                 .orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
 
-        // Fetch asset if it belongs to portfolio
         Asset asset = portfolio.getAssets().stream()
                 .filter(a -> a.getTickerSymbol().equals(uppercaseTickersymbol))
                 .findFirst()
                 .orElseThrow(() -> new AssetNotFoundException(uppercaseTickersymbol));
 
-        // Remove asset from portfolio and delete from db
         portfolio.getAssets().remove(asset);
         assetRepository.delete(asset);
 
-        // Verify asset was deleted
-        Optional<Asset> deletedAsset = assetRepository.findById(asset.getId());
-        if (deletedAsset.isPresent()){
-            throw new AssetDeletionFailedException(tickersymbol);
-        }
-
-        // Else successful
-        // Update portfolio statistics
         portfolio.updateStatistics();
 
-        // Log success and save portfolio before returning asset deletion response
         portfolioRepository.save(portfolio);
         log.debug("{} attempt to delete asset {} in portfolio {} succeeded.", capitalizedUsername,
                 uppercaseTickersymbol, capitalizedPortfolioname);

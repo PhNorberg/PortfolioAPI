@@ -97,7 +97,6 @@ public class Asset {
 
     private void updatePurchasePrice(Transaction transaction) {
 
-        // If a sell event brought down holdings to 0.
         if (quantity.compareTo(BigDecimal.ZERO) == 0){
             this.purchasePrice = BigDecimal.ZERO;
         } else if(transaction.getTransactionType().equals("sell")){
@@ -143,7 +142,6 @@ public class Asset {
      */
     private void updateProfitFactor(Transaction transaction) {
 
-        // If a sell event brought down holdings to 0.
         if (quantity.compareTo(BigDecimal.ZERO) == 0){
             this.purchasePrice = BigDecimal.ZERO;
         } else if(transaction.getTransactionType().equals("sell")) {
@@ -198,8 +196,8 @@ public class Asset {
         }
 
     private String createRequestURL(){
+
         String apiKey = readAPIKey();
-        // In future, if more assetTypes show up, use switch/case.
         return (assetType.equals("crypto") ?
                 "https://api.twelvedata.com/time_series?symbol=" + tickerSymbol + "/USD&interval=1min&outputsize=1&apikey=" + apiKey :
                 "https://api.twelvedata.com/time_series?symbol=" + tickerSymbol + "&interval=1min&outputsize=1&apikey=" + apiKey);
@@ -234,7 +232,6 @@ public class Asset {
         // Returns {"TWELVEDATA_API_KEY" : "key value"}
         String secret = getSecretValueResponse.secretString();
 
-        // Parse the JSON string and extract the API Key
         JSONParser parser = new JSONParser();
         try {
             JSONObject json = (JSONObject) parser.parse(secret);
@@ -247,8 +244,8 @@ public class Asset {
     }
 
     private BigDecimal callTwelveDataAPI(String requestURL) throws IOException, ParseException {
-        // This call fetches last closing price of given Asset.
 
+             // This call fetches last closing price of given Asset.
             URL url = new URL(requestURL);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             StringBuilder responseData = new StringBuilder();

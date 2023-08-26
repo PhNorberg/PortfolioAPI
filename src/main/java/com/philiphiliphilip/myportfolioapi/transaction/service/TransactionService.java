@@ -108,49 +108,45 @@ public class TransactionService {
     public TransactionCreationResponse createAssetTransaction(TransactionCreationRequest creationRequest, String username,
                                                               String portfolioname, String tickersymbol) {
 
-        // Format username, portfolioname, tickersymbol and transactiontype
+
         String capitalizedUsername = usernameFormatter.format(username);
         String capitalizedPortfolioname = portfolionameFormatter.format(portfolioname);
         String uppercaseTickersymbol = tickersymbolFormatter.format(tickersymbol);
-        // Make formatter for this:)
         String lowercaseTransactiontype = creationRequest.getTransactionType().toLowerCase();
 
         log.debug("User {} trying to add transactiontype {} of asset {} in portfolio {}.",
                 capitalizedUsername, lowercaseTransactiontype, uppercaseTickersymbol,
                 capitalizedPortfolioname);
-        // Fetch user object
+
+
         Optional<User> user = userRepository.findByUsername(capitalizedUsername);
 
-        // Fetch portfolio if it belongs to user
+
         Portfolio portfolio = user.get().getPortfolio().stream()
                 .filter(p -> p.getName().equals(capitalizedPortfolioname))
                 .findFirst()
                 .orElseThrow(() -> new PortfolioNotFoundException(capitalizedPortfolioname));
 
-        // Fetch asset if it belongs to portfolio
+
         Asset asset = portfolio.getAssets().stream()
                 .filter(a -> a.getTickerSymbol().equals(uppercaseTickersymbol))
                 .findFirst()
                 .orElseThrow(() -> new AssetNotFoundException(uppercaseTickersymbol));
 
-        // If transaction type sell, check asset to see if we have that amount to sell
+
         if (lowercaseTransactiontype.equals("sell") &&
                 asset.getQuantity().compareTo(creationRequest.getQuantity()) < 0){
             throw new AssetQuantityNotEnoughException(asset.getQuantity(), uppercaseTickersymbol);
         }
-        // Create the transaction
+
+
         Transaction transaction = new Transaction(lowercaseTransactiontype, creationRequest.getQuantity(),
                 creationRequest.getPrice());
 
-        // Create relation between objects.
         transaction.setAsset(asset);
         asset.getTransactions().add(transaction);
 
-        // Update asset statistics
         asset.updateStatistics(transaction);
-
-        // Save to database
-        //userRepository.save(user.get());
 
         assetRepository.save(asset);
         log.debug("User {} sucessfully added transactiontype {} of asset {} in portfolio {}.",

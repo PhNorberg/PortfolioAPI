@@ -21,10 +21,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
 
-        // User in this case is Spring Securitys 'User' class.
-        // Behind the scenes, Spring Security will compare the user.getPassword() against the password that the
-        // user provided at /login through the UserDetails object. This is done with the help of BCryptPasswordEncoder that we
-        // made as @Bean in SecurityConfiguration.
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(), Collections.emptyList());
     }
 }

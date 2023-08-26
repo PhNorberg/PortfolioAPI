@@ -35,18 +35,10 @@ public class JwtService {
 
     public UserLoginResponse login(UserLoginRequest userLoginRequest) {
 
-        // Format username
         String capitalizedUsername = usernameFormatter.format(userLoginRequest.getUsername());
-        // Create an authentication token
         Authentication authenticationToken =
                 new UsernamePasswordAuthenticationToken(capitalizedUsername, userLoginRequest.getPassword());
 
-        // Authenticate the user. This block of code will delegate the authentication process to one or more
-        // AuthenticationProvider instances, which will use my own written CustomUserDetailsService to load the UserDetails
-        // by the provided username from the db. Once fetched, the AuthenticationProvider will compare the passwords
-        // from UserDetails with the password provided in the UserLoginRequest, using the given encoder (BCrypto) to
-        // verify the match. If successful, it will return true and the Authentication object will contain the user's details
-        // and granted authorities.
         Authentication authenticatedUser = authenticationManager.authenticate(authenticationToken);
         String token = createToken(authenticatedUser);
         log.debug("User with username {} logged in successfully.", capitalizedUsername);

@@ -35,20 +35,17 @@ public class AuthenticationService {
     @Transactional
     public UserRegistrationResponse register(UserRegistrationRequest registrationRequest, BindingResult bindingResult) {
 
-        // Check if User with this username already exists
         String capitalizedUsername = usernameFormatter.format(registrationRequest.getUsername());
         Optional<User> existingUsername = userRepository.findByUsername(capitalizedUsername);
         if(existingUsername.isPresent()){
             throw new UsernameAlreadyExistsException(capitalizedUsername);
         }
 
-        // Hash the password
         String hashedPassword = passwordEncoder.encode(registrationRequest.getPassword());
 
-        // Store the user in the database
         User newUser = new User(capitalizedUsername, hashedPassword);
         userRepository.save(newUser);
-        // Log successful register attempt.
+
         log.debug("User with username {} registered successfully.", capitalizedUsername);
         return new UserRegistrationResponse();
     }

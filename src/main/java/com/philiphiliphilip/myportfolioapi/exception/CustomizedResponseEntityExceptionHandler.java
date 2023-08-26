@@ -82,15 +82,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getMessage()));
     }
 
-    @ExceptionHandler(UserDeletionFailedException.class)
-    public ResponseEntity<Object> handleUserDeletionFailed(UserDeletionFailedException exception){
-        // Log error to developers
-        logError(exception);
-
-        // Return a message to the user
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
-    }
-
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException exception, WebRequest request){
         // Log the detailed error message for developers
@@ -131,15 +122,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                 exception.getToUser()));
     }
 
-    @ExceptionHandler(PortfolioDeletionFailedException.class)
-    public ResponseEntity<Object> handlePortfolioDeletionFailedException(PortfolioDeletionFailedException exception){
-        // Log error to developers
-        logError(exception);
-
-        // Return a message to the user
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
-    }
-
     @ExceptionHandler(AssetAlreadyExistsException.class)
     public ResponseEntity<Object> handleAssetAlreadyExistsException(AssetAlreadyExistsException exception){
         // Log error to developers
@@ -159,15 +141,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
     @ExceptionHandler(AssetQuantityNotEnoughException.class)
     public ResponseEntity<Object> handleAssetQuantityNotEnoughException(AssetQuantityNotEnoughException exception){
-        // Log error to developers
-        logError(exception);
-
-        // Return a message to the user
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", exception.getToUser()));
-    }
-
-    @ExceptionHandler(AssetDeletionFailedException.class)
-    public ResponseEntity<Object> handleAssetDeletionFailedException(AssetDeletionFailedException exception){
         // Log error to developers
         logError(exception);
 

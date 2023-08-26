@@ -14,7 +14,7 @@ import java.util.List;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "username"
 )
-// user is key-name in h2, therefore name it something else
+
 @Entity(name = "user_details")
     public class User {
 
@@ -24,7 +24,7 @@ import java.util.List;
     private String username;
     private String password;
 
-    // CascadeType.REMOVE to cascade delete a User's portfolio when a User is deleted
+
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
     private List<Portfolio> portfolio;
 
