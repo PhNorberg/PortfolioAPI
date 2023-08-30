@@ -8,7 +8,7 @@ This portfolio tracker lets you track your stock and/or crypto portfolio perform
 
 First off, you need to register an account and log in.
 
-Head over to http://portfolioapi-prod.eba-fapp3vct.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html#/
+**CURRENTLY OFFLINE** Head over to http://portfolioapi-prod.eba-fapp3vct.eu-north-1.elasticbeanstalk.com/swagger-ui/index.html#/
 
 ### Register
 
